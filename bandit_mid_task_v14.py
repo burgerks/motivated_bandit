@@ -1146,6 +1146,9 @@ def main():
         MID_DEMO = ("First, here is what happens if you press too early.\n\n"
                     "Just watch; do not press any key during the example.\n\n"
                     "Press SPACE to see it.")
+        MID_DEMO_DONE = ("Ok, that's what it looks like when you press too soon.\n\n"
+                         "Remember, wait for the square.\n\n"
+                         "Now let's have you practice.\n\nPress SPACE to continue.")
         CONFIRM = ("Nice work!\n\nDo you understand the task, or would you like to do "
                    "more practice rounds?\n\n"
                    "Press RETURN to practice again        Press SPACE to begin the task\n\n"
@@ -1163,6 +1166,7 @@ def main():
             wait_page(MID, ['space'])
             wait_page(MID_DEMO, ['space'])
             practice_bonus_trial(True, force_early=True)  # guaranteed too-soon demonstration
+            wait_page(MID_DEMO_DONE, ['space'])
             cues = [True, False, prand() < 0.5]          # one food, one neutral, one either
             for i in range(len(cues) - 1, 0, -1):        # Fisher-Yates on prand so order is unpredictable
                 j = int(prand() * (i + 1))
