@@ -1,27 +1,27 @@
-# Bandit + mini-MID bonus (PsychoPy, v13)
+# Bandit + mini-MID bonus (PsychoPy; v14; 7/8/26)
 
-PsychoPy port of the jsPsych task. Three-arm probabilistic bandit with two
-reversals and an interleaved adaptive-window mini-MID bonus block
-(16 food + 14 neutral, phase-stratified). Same core data fields as the web
-export, plus a few hardware, timing, and provenance columns.
+Three-arm probabilistic bandit with two reversals and an interleaved adaptive-window mini-MID bonus block
+(16 food + 14 neutral, phase-stratified). Designed by Burger, and it is a bandit; thus, it is known as the hamburglar. As of July 2026, v13 and v14 are being piloted (version differences are only during the practice session). Total task time including practice is ~15-20mins. For sample size estimates, simulated data recovery analyses of basic computational learning metrics are available in the recovery_power_analyses folder. Accurate est. gamma based on actaul data is currently unknown.     
 
 ## Run
 
+To run, you need the primary script and the stimuli folder (and contents) in the same path. Requires PsychoPy (2023.2 or newer recommended). Install via the standalone PsychoPy app or `pip install psychopy`. Serial triggers also need `pyserial`. 
+
+Call is: 
+
 ```
-python bandit_mid_task_v13.py
+python bandit_mid_task_v14.py
 ```
 
 A startup dialog collects participant ID, session, an optional seed (blank draws
 a random one, logged in every row), the food set (auto/sweet/savory/sweet+savory),
 and the iEEG options (photodiode square, trigger backend, serial port, parallel
 address). Press SPACE at the instructions to begin. The experimenter can abort at
-any time with Escape; data written so far is kept.
+any time with Escape; data collected is written and kept.
 
 Reruns never overwrite: each run gets its own numbered output folder (see
 Output below), so the same ID and session can be entered repeatedly.
 
-Requires PsychoPy (2023.2 or newer recommended). Install via the standalone
-PsychoPy app or `pip install psychopy`. Serial triggers also need `pyserial`.
 
 ## Responses
 
@@ -59,7 +59,7 @@ Neutral cues always come from `stimuli/neutral/`.
 
 If a bandit symbol file is missing, a plain dark placeholder shape is drawn
 instead, so the task runs before you add your own. Empty food/neutral/loss
-folders fall back to a labelled box (cues) or a drawn sad face (losses).
+folders fall back to a labeled box (cues) or a drawn sad face (losses).
 
 ## Task parameters
 
@@ -133,7 +133,7 @@ and the `sweet+savory` food set draws an extra value per image to pick a folder,
 so single-folder sets reproduce exactly as before while `sweet+savory` has its
 own draw pattern.
 
-## iEEG notes
+## trigger notes
 
 - Triggers: every event sends the same marker, a comma. Choose `serial` (writes
   the byte `,` = 0x2C to the configured port) or `parallel` (writes the comma
