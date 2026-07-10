@@ -76,7 +76,7 @@ N_TRIALS_EXPECTED = 200
 REVERSAL_TRIALS = [69, 130]          # 1-indexed bandit trials where reversals take effect
 N_BONUS_FOOD_EXPECTED = 16
 N_BONUS_NEUTRAL_EXPECTED = 14
-WIN_FLOOR_MS = 250                   # staircase floor (for rail detection); match the task's CFG WIN_FLOOR (250 in v13+)
+WIN_FLOOR_MS = 230                   # staircase floor (for rail detection); match the task's CFG WIN_FLOOR (230 in v14+)
 WIN_CEIL_MS = 600                    # staircase ceiling (for rail detection)
 
 # Reversal analysis windows (number of bandit trials before/after each reversal).
