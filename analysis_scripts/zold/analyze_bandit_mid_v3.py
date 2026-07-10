@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 """
 Batch analysis for the craving-modulated 3-arm bandit + embedded mini-MID task
-(bandit_mid_task_v14.py output).
+(bandit_mid_task_v12.py output).
 
 What it does
 ------------
@@ -43,7 +43,6 @@ Run
 from __future__ import annotations
 
 import hashlib
-import math
 import re
 from pathlib import Path
 from typing import Dict, List, Optional, Tuple
@@ -77,7 +76,7 @@ N_TRIALS_EXPECTED = 200
 REVERSAL_TRIALS = [69, 130]          # 1-indexed bandit trials where reversals take effect
 N_BONUS_FOOD_EXPECTED = 16
 N_BONUS_NEUTRAL_EXPECTED = 14
-WIN_FLOOR_MS = 250                   # staircase floor (for rail detection); match the task's CFG WIN_FLOOR (250 in v13+)
+WIN_FLOOR_MS = 230                   # staircase floor (for rail detection); match the task's CFG WIN_FLOOR (230 in v14+)
 WIN_CEIL_MS = 600                    # staircase ceiling (for rail detection)
 
 # Reversal analysis windows (number of bandit trials before/after each reversal).
@@ -92,12 +91,7 @@ VERY_FAST_RT_THRESHOLD = 0.100
 
 # QC / exclusion thresholds. These drive flags only; no rows are removed.
 MIN_BANDIT_TRIALS_FOR_ANALYSIS = 150     # usable bandit trials required
-MIN_ASYMPTOTIC_OPTIMAL = 0.45            # descriptive last-edge floor (reference only; no longer the gate)
-# Learning gate: a subject must choose the optimal arm above chance across the full
-# final phase to be interpretable. A one-sided binomial test against chance is more
-# defensible than a flat proportion and adapts to the usable trial count.
-CHANCE_OPTIMAL_PROP = 1.0 / 3.0          # 3-arm bandit: random optimal-choice rate
-LEARNING_ALPHA = 0.05                    # one-sided significance for 'learned above chance'
+MIN_ASYMPTOTIC_OPTIMAL = 0.45            # last-phase optimal-choice floor
 MAX_LATE_CHOICE_PROP = 0.20              # share of bandit trials past the 4 s nudge
 MAX_FAST_RT_PROP = 0.30                  # share of choice RTs below FAST_RT_THRESHOLD
 MIN_MID_HIT_RATE = 0.40                  # staircase should hold hits near 0.667
@@ -197,15 +191,6 @@ def prop_below(x: pd.Series, threshold: float) -> float:
     """Proportion of non-missing numeric values strictly below a threshold."""
     v = pd.to_numeric(x, errors="coerce").dropna()
     return float((v < threshold).mean()) if len(v) else float("nan")
-
-
-def binom_upper_tail_p(k: int, n: int, p0: float) -> float:
-    """One-sided binomial p-value P(X >= k) for X ~ Binomial(n, p0). Uses math.comb
-    (no scipy dependency). Returns 1.0 when n == 0 so an empty phase never passes."""
-    if n <= 0:
-        return 1.0
-    return float(sum(math.comb(n, i) * (p0 ** i) * ((1.0 - p0) ** (n - i))
-                     for i in range(k, n + 1)))
 
 
 def shannon_entropy(counts: List[int]) -> float:
@@ -398,16 +383,6 @@ def bandit_summary(bandit: pd.DataFrame) -> Dict[str, float]:
     last_phase = phase.max()
     last_sub = bandit[(phase == last_phase) & bandit["usable"]].sort_values("trial").tail(PHASE_EDGE_WINDOW)
     out["asymptotic_optimal_prop"] = prop_true(last_sub["is_optimal"]) if len(last_sub) else float("nan")
-    # Learning gate basis: full final phase (more power than the 15-trial edge). A
-    # one-sided binomial test against chance (1/3) marks whether value-based learning
-    # took hold; replaces the flat last-edge floor as the exclusion criterion.
-    final_full = bandit[(phase == last_phase) & bandit["usable"]]
-    n_fin = int(len(final_full))
-    k_opt = int(final_full["is_optimal"].sum()) if n_fin else 0
-    out["final_phase_n"] = n_fin
-    out["final_phase_optimal_prop"] = (k_opt / n_fin) if n_fin else float("nan")
-    out["learn_binom_p"] = binom_upper_tail_p(k_opt, n_fin, CHANCE_OPTIMAL_PROP) if n_fin else float("nan")
-    out["learned_above_chance"] = bool(n_fin > 0 and out["learn_binom_p"] < LEARNING_ALPHA)
     # Exploration: switch rate and normalized entropy of the position choices.
     seq = usable.sort_values("trial")["choice"].dropna().tolist()
     out["switch_rate"] = float(np.mean([seq[i] != seq[i - 1] for i in range(1, len(seq))])) if len(seq) > 1 else float("nan")
@@ -549,11 +524,8 @@ def build_qc_flags(s: Dict[str, float]) -> Tuple[List[str], bool, str]:
         flags.append("few_bandit_trials")
     if s.get("max_swap_count", 0) < len(REVERSAL_TRIALS):
         flags.append("reversals_not_reached")
-    # Learning gate: flag subjects whose final-phase optimal choice is not reliably
-    # above chance (one-sided binomial test). Model-agnostic sign that value-based
-    # learning did not take hold; replaces the flat-proportion asymptote floor.
-    if s.get("final_phase_n", 0) > 0 and not s.get("learned_above_chance", False):
-        flags.append("did_not_learn")
+    if pd.notna(s.get("asymptotic_optimal_prop")) and s["asymptotic_optimal_prop"] < MIN_ASYMPTOTIC_OPTIMAL:
+        flags.append("low_asymptotic_accuracy")
     if pd.notna(s.get("late_choice_prop")) and s["late_choice_prop"] > MAX_LATE_CHOICE_PROP:
         flags.append("many_late_choices")
     if pd.notna(s.get("bandit_fast_rt_prop")) and s["bandit_fast_rt_prop"] > MAX_FAST_RT_PROP:
@@ -592,8 +564,8 @@ def build_qc_flags(s: Dict[str, float]) -> Tuple[List[str], bool, str]:
     reasons = []
     if "few_bandit_trials" in flags:
         reasons.append("insufficient bandit trials")
-    if "did_not_learn" in flags:
-        reasons.append("final-phase choice not above chance")
+    if "low_asymptotic_accuracy" in flags:
+        reasons.append("near-random asymptotic choice")
     if "low_mid_hit_rate" in flags or "high_mid_hit_rate" in flags:
         reasons.append("MID staircase did not constrain hit rate")
     if "high_mid_premature" in flags:
@@ -765,12 +737,8 @@ def add_group_vigor(summary_df: pd.DataFrame) -> pd.DataFrame:
 # =============================================================================
 
 
-def make_data_dictionary(summary_cols=None, phase_cols=None, cue_cols=None) -> pd.DataFrame:
-    """Return variable definitions for every output column. When column orders are
-    supplied, rows are emitted in the same order as the actual output columns
-    (subject summary, then phase, then cue long formats) so the dictionary and the
-    CSVs always agree; undocumented output columns are emitted with a blank
-    definition and reported."""
+def make_data_dictionary() -> pd.DataFrame:
+    """Return the variable definitions for every output column."""
     rows = [
         ("participant_id", "Participant ID from the participant_id column, manual map, or sub-<id> in the filename."),
         ("session", "Session label from the session column, manual map, or ses-<id> in the filename."),
@@ -797,11 +765,7 @@ def make_data_dictionary(summary_cols=None, phase_cols=None, cue_cols=None) -> p
         ("late_choice_prop", "Proportion of bandit trials where the 4 s 'answer faster' nudge fired (choice_late)."),
         ("phase_first_optimal_prop", f"Optimal-choice accuracy over the first {PHASE_EDGE_WINDOW} usable trials of each phase, pooled."),
         ("phase_last_optimal_prop", f"Optimal-choice accuracy over the last {PHASE_EDGE_WINDOW} usable trials of each phase, pooled."),
-        ("asymptotic_optimal_prop", f"Optimal-choice accuracy over the last {PHASE_EDGE_WINDOW} usable trials of the final phase (descriptive)."),
-        ("final_phase_n", "Usable bandit trials in the full final phase (denominator of the learning gate)."),
-        ("final_phase_optimal_prop", "Optimal-choice accuracy across the full final phase; basis for the learning gate."),
-        ("learn_binom_p", "One-sided binomial p-value that final-phase optimal choice exceeds chance (1/3)."),
-        ("learned_above_chance", "True when learn_binom_p < LEARNING_ALPHA; False raises the did_not_learn exclusion flag."),
+        ("asymptotic_optimal_prop", f"Optimal-choice accuracy over the last {PHASE_EDGE_WINDOW} usable trials of the final phase; basis for the asymptote QC flag."),
         ("switch_rate", "Proportion of consecutive usable trials with a different position choice (exploration index)."),
         ("choice_entropy", "Normalized Shannon entropy (0-1) of position choices across usable trials."),
         ("win_stay_prop", "Proportion of rewarded usable trials whose next usable trial repeats the same symbol."),
@@ -872,27 +836,8 @@ def make_data_dictionary(summary_cols=None, phase_cols=None, cue_cols=None) -> p
         ("hit_rate", "mid_cue_summary: hit rate for this cue type."),
         ("mean_target_rt_ms", "mid_cue_summary: mean target RT (ms) for this cue type."),
         ("median_target_rt_ms", "mid_cue_summary: median target RT (ms) for this cue type."),
-        ("premature_prop", "mid_cue_summary: proportion of this cue type's probes with a too-soon (anticipatory) press."),
-        ("no_response_prop", "mid_cue_summary: proportion of this cue type's probes with no press within the grace window."),
-        ("n_rt_valid", "mid_cue_summary: probes of this cue type with a valid target RT."),
     ]
-    defs = dict(rows)  # variable -> definition (text is the source of truth)
-    order = list(summary_cols or []) + list(phase_cols or []) + list(cue_cols or [])
-    if not order:
-        return pd.DataFrame(rows, columns=["variable", "definition"])
-    out_rows, seen = [], set()
-    for col in order:
-        if col in seen:
-            continue
-        seen.add(col)
-        if col not in defs:
-            print(f"  [data-dictionary] WARNING: output column '{col}' has no definition")
-        out_rows.append((col, defs.get(col, "")))
-    for var, definition in rows:              # keep any documented-but-unused variables
-        if var not in seen:
-            seen.add(var)
-            out_rows.append((var, definition))
-    return pd.DataFrame(out_rows, columns=["variable", "definition"])
+    return pd.DataFrame(rows, columns=["variable", "definition"])
 
 
 # =============================================================================
@@ -969,14 +914,10 @@ def main() -> None:
     phase_path = output_dir / "bandit_phase_summary.csv"
     cue_path = output_dir / "mid_cue_summary.csv"
     dict_path = output_dir / "bandit_mid_data_dictionary.csv"
-    phase_df = pd.DataFrame(all_phase)
-    cue_df = pd.DataFrame(all_cue)
     summary_df.to_csv(summary_path, index=False)
-    phase_df.to_csv(phase_path, index=False)
-    cue_df.to_csv(cue_path, index=False)
-    make_data_dictionary(summary_df.columns.tolist(),
-                         phase_df.columns.tolist(),
-                         cue_df.columns.tolist()).to_csv(dict_path, index=False)
+    pd.DataFrame(all_phase).to_csv(phase_path, index=False)
+    pd.DataFrame(all_cue).to_csv(cue_path, index=False)
+    make_data_dictionary().to_csv(dict_path, index=False)
     if SAVE_TRIALWISE:
         trial_path = output_dir / "bandit_mid_trial_cleaned.csv"
         pd.DataFrame(all_trials).to_csv(trial_path, index=False)
