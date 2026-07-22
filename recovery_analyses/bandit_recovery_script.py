@@ -187,7 +187,57 @@ def em_fit(ND, grid, vigor, n_iter=50):
             resid = Etheta[:, d] - (a0 + b * vz)
             Sigma[d] = float(np.mean(resid ** 2 + Vtheta[:, d]))
     se = np.sqrt(Sigma / (sx2 + 1e-12))                  # Wald SE for each gamma
-    return m, gamma, se, Sigma, Etheta
+    return m, gamma, se, Sigma, Etheta, Vtheta
+
+
+# ---------------------------------------------------------------------------
+# Permutation inference on the group-level gamma coefficients.
+#
+# Why this exists: the EM Wald interval is anti-conservative for alpha+. Across
+# the simulation grid its null rejection rate ran 0.10-0.16 against a nominal
+# 0.05, and its CI coverage ran 0.83-0.90 against a nominal 0.95, at every
+# sample size tested. The miscalibration does not shrink as N grows, so it is
+# structural rather than a small-sample artifact. The Wald SE treats the
+# posterior means Etheta as if they were observed data, which ignores the
+# shrinkage the E-step applied to them and so understates the true sampling
+# variability of gamma.
+#
+# The permutation null: vigor is unrelated to the learning parameters. Shuffling
+# the vigor vector across subjects breaks that association while leaving the
+# per-subject parameter estimates and the between-subject parameter distribution
+# exactly as they are. Whatever gamma the M-step regression produces on shuffled
+# vigor is what this pipeline generates by chance.
+#
+# Two modes:
+#   fast  (default) permutes vigor and recomputes only the M-step regression,
+#         holding the E-step posteriors fixed. Valid under the null, because when
+#         gamma is truly 0 the group prior does not depend on vigor, so the
+#         posteriors carry no vigor information to be reused. Costs one
+#         regression per permutation.
+#   full  re-runs the entire EM for each permutation. Exact but roughly n_perm
+#         times the cost of a single fit; use it to spot-check the fast mode.
+# ---------------------------------------------------------------------------
+def permutation_gamma_p(ND, grid, vig, Etheta, Vtheta, n_perm, rng,
+                        mode="fast", n_iter=50):
+    """Two-sided permutation p-values for each gamma. Returns an array over PARAMS.
+
+    p is the fraction of permutations whose |gamma| is at least the observed
+    |gamma|, with the +1/+1 correction so p is never exactly 0."""
+    obs = np.zeros(3)
+    vz_obs = (vig - vig.mean()) / (vig.std() + 1e-12)
+    for d in range(3):
+        obs[d] = float(np.polyfit(vz_obs, Etheta[:, d], 1)[0])
+
+    count = np.zeros(3)
+    for _ in range(n_perm):
+        vperm = rng.permutation(vig)
+        vz = (vperm - vperm.mean()) / (vperm.std() + 1e-12)
+        if mode == "full":
+            _, gperm, _, _, _, _ = em_fit(ND, grid, vperm, n_iter=n_iter)
+        else:
+            gperm = np.array([np.polyfit(vz, Etheta[:, d], 1)[0] for d in range(3)])
+        count += (np.abs(gperm) >= np.abs(obs)).astype(float)
+    return (count + 1.0) / (n_perm + 1.0)
 
 
 def run(args):
@@ -211,7 +261,7 @@ def run(args):
                 ND[i] = data_nll(nat_ap, nat_an, nat_b, ch, rw)
                 true_t[i] = [tp["ap_logit"], tp["an_logit"], tp["log_beta"]]
                 true_nat[i] = [tp["alpha_pos"], tp["alpha_neg"], tp["beta"]]
-            m, gamma, se, Sigma, Eth = em_fit(ND, grid, vig, n_iter=args.em_iter)
+            m, gamma, se, Sigma, Eth, Vth = em_fit(ND, grid, vig, n_iter=args.em_iter)
             est_nat = np.column_stack([sigmoid(Eth[:, 0]), sigmoid(Eth[:, 1]), np.exp(Eth[:, 2])])
 
             row = {"scenario": sc, "dataset": d}
@@ -224,6 +274,14 @@ def run(args):
                 tg = args.gamma if TARGET[sc] == p else 0.0
                 row[f"true_gamma_{p}"] = tg
                 row[f"ci_covers_true_{p}"] = int(lo <= tg <= hi)
+            # Permutation inference, run only when asked for (it costs extra).
+            if args.inference in ("perm", "both"):
+                pvals = permutation_gamma_p(ND, grid, vig, Eth, Vth, args.n_perm,
+                                            rng, mode=args.perm_mode,
+                                            n_iter=args.em_iter)
+                for j, p in enumerate(PARAMS):
+                    row[f"perm_p_{p}"] = float(pvals[j])
+                    row[f"perm_rejects0_{p}"] = int(pvals[j] < 0.05)
             if TARGET[sc] is not None:
                 row["largest_gamma_param"] = PARAMS[int(np.argmax(np.abs(gamma)))]
                 row["target_is_largest"] = int(row["largest_gamma_param"] == TARGET[sc])
@@ -246,6 +304,12 @@ def run(args):
             r[f"gamma_bias_{p}"] = r[f"mean_est_gamma_{p}"] - r[f"true_gamma_{p}"]
             r[f"detect_rate_gamma_{p}"] = float(g[f"ci_excludes0_{p}"].mean())   # power if target, FPR if not
             r[f"ci_coverage_gamma_{p}"] = float(g[f"ci_covers_true_{p}"].mean())
+            # Permutation counterpart. Under the null scenario this column is the
+            # calibrated false-positive rate and should sit near 0.05; compare it
+            # with detect_rate_gamma_* to see how much the Wald interval inflates.
+            if f"perm_rejects0_{p}" in g.columns:
+                r[f"perm_detect_rate_gamma_{p}"] = float(g[f"perm_rejects0_{p}"].mean())
+                r[f"mean_perm_p_{p}"] = float(g[f"perm_p_{p}"].mean())
         if sc != "null":
             r["target_recovered_as_largest_gamma_rate"] = float(g["target_is_largest"].mean())
         sum_rows.append(r)
@@ -271,6 +335,17 @@ def parse():
     p.add_argument("--grid", type=int, default=11, help="grid points per parameter dimension")
     p.add_argument("--em-iter", type=int, default=50, dest="em_iter")
     p.add_argument("--seed", type=int, default=20260617)
+    p.add_argument("--inference", choices=["wald", "perm", "both"], default="wald",
+                   help="Group-level gamma inference. 'wald' is the EM interval "
+                        "(fast, but anti-conservative for alpha+). 'perm' adds a "
+                        "permutation test on shuffled vigor. 'both' reports each.")
+    p.add_argument("--n-perm", type=int, default=500, dest="n_perm",
+                   help="Permutations per dataset when --inference is perm or both.")
+    p.add_argument("--perm-mode", choices=["fast", "full"], default="fast",
+                   dest="perm_mode",
+                   help="'fast' permutes vigor and refits only the M-step regression. "
+                        "'full' re-runs the whole EM per permutation (exact, ~n_perm "
+                        "times slower); use it to spot-check 'fast'.")
     p.add_argument("--outdir", type=str, default=".")
     return p.parse_args()
 
