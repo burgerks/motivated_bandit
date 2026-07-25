@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 """
 Per-subject reinforcement-learning fits for the craving-modulated 3-arm bandit
-(bandit_mid_task_v12/v13.py output). Companion to analyze_bandit_mid_v1.py.
+(bandit_mid_task_v15.py output). Companion to analyze_bandit_mid_v4.py.
 
 Models
 ------

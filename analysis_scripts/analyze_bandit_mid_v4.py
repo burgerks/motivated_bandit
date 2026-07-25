@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 """
 Batch analysis for the craving-modulated 3-arm bandit + embedded mini-MID task
-(bandit_mid_task_v14.py output).
+(bandit_mid_task_v15.py output).
 
 What it does
 ------------
@@ -11,7 +11,7 @@ What it does
 3. Bandit: overall and phase-wise optimal-choice accuracy across the two reversals,
    win-stay / lose-shift, reversal perseveration, choice-RT vigor, regret, exploration.
 4. Mini-MID: hit rate (overall / food / neutral), target RT by cue type, premature
-   and no-response rates, staircase convergence, bonus points.
+   and no-response rates, response-window QC, bonus points.
 5. Hybrid: post-food-probe carryover (choice RT, optimal choice, win-stay/lose-shift)
    on the bandit trial(s) following each food probe.
 6. A second, group-level pass builds the across-subject incentive-vigor indices,
@@ -77,8 +77,12 @@ N_TRIALS_EXPECTED = 200
 REVERSAL_TRIALS = [69, 130]          # 1-indexed bandit trials where reversals take effect
 N_BONUS_FOOD_EXPECTED = 16
 N_BONUS_NEUTRAL_EXPECTED = 14
-WIN_FLOOR_MS = 230                   # staircase floor (for rail detection); match the task's CFG WIN_FLOOR (230 in current task)
-WIN_CEIL_MS = 600                    # staircase ceiling (for rail detection)
+# v15 uses a FIXED probe deadline, so there is no staircase to rail. These bounds
+# are retained only to QC legacy v13/v14 files, which were collected under a
+# staircase and whose vigor readings are compressed as a result.
+FIXED_WINDOW_MS = 550                # v15 probe deadline; QC checks the file matches
+LEGACY_WIN_FLOOR_MS = 230            # v13/v14 staircase floor (rail detection)
+LEGACY_WIN_CEIL_MS = 600             # v13/v14 staircase ceiling (rail detection)
 
 # Reversal analysis windows (number of bandit trials before/after each reversal).
 REVERSAL_WINDOW = 10
@@ -104,7 +108,7 @@ LEARNING_ALPHA = 0.05                    # one-sided significance for 'learned a
 MAX_LATE_OPTIMAL_DROP = 0.35             # 0.35 flags the clear case but spares milder dips
 MAX_LATE_CHOICE_PROP = 0.20              # share of bandit trials past the 4 s nudge
 MAX_FAST_RT_PROP = 0.30                  # share of choice RTs below FAST_RT_THRESHOLD
-MIN_MID_HIT_RATE = 0.40                  # staircase should hold hits near 0.667
+MIN_MID_HIT_RATE = 0.40                  # v15 fixed deadline targets ~0.95+; v13/v14 staircase targeted ~0.667
 MAX_MID_HIT_RATE = 0.90
 MAX_MID_PREMATURE_PROP = 0.25            # anticipatory (too-soon) presses -> exclusion flag
 WATCH_MID_PREMATURE_PROP = 0.20          # softer "watch" band for the v14 too-soon deterrent (advisory, no exclusion)
@@ -264,11 +268,24 @@ def add_bandit_scoring(bandit: pd.DataFrame) -> pd.DataFrame:
     return b
 
 
+def normalize_window_column(df: pd.DataFrame) -> pd.DataFrame:
+    """Map the legacy adaptive_window_ms column onto window_ms.
+
+    v15 writes a fixed probe deadline as window_ms. v13/v14 wrote a per-probe
+    staircase value as adaptive_window_ms. Renaming on read means the rest of the
+    script has a single column to reason about, and the QC section can still tell
+    the two apart because a staircase file has a varying window while a v15 file
+    has a constant one."""
+    if "adaptive_window_ms" in df.columns and "window_ms" not in df.columns:
+        df = df.rename(columns={"adaptive_window_ms": "window_ms"})
+    return df
+
+
 def add_bonus_scoring(bonus: pd.DataFrame) -> pd.DataFrame:
     """Coerce mini-MID outcome and RT fields used downstream."""
     z = bonus.copy()
     for col in ["target_hit", "target_miss", "target_too_fast", "target_no_response",
-                "target_rt_ms", "premature_rt_ms", "adaptive_window_ms",
+                "target_rt_ms", "premature_rt_ms", "window_ms",
                 "food_bonus_cue", "bonus_points_earned", "position_in_bandit_stream"]:
         if col in z.columns:
             z[col] = pd.to_numeric(z[col], errors="coerce")
@@ -466,14 +483,17 @@ def mid_summary(bonus: pd.DataFrame) -> Dict[str, float]:
         "n_neutral_rt_valid": int(neutral["target_rt_ms"].notna().sum()),
         "bonus_points_total": float(bonus["bonus_points_earned"].sum()),
         # Final and last-five-mean windows index whether the staircase converged.
-        "staircase_final_window_ms": float(bonus.sort_values("position_in_bandit_stream")["adaptive_window_ms"].dropna().iloc[-1]) if bonus["adaptive_window_ms"].notna().any() else float("nan"),
-        "staircase_mean_window_ms": safe_mean(bonus["adaptive_window_ms"]),
+        "staircase_final_window_ms": float(bonus.sort_values("position_in_bandit_stream")["window_ms"].dropna().iloc[-1]) if bonus["window_ms"].notna().any() else float("nan"),
+        "staircase_mean_window_ms": safe_mean(bonus["window_ms"]),
+        # SD of the probe window across probes. 0 = fixed deadline (v15);
+        # >0 = a staircase was running (v13/v14).
+        "window_sd_ms": float(bonus["window_ms"].dropna().std(ddof=0)) if bonus["window_ms"].notna().any() else float("nan"),
     })
     # Version-agnostic rail detection: the window steps by a fixed amount on every
     # scored probe, so a run of consecutive identical values at the min (or max) means
     # the staircase was clamped at a bound there. The longest such run is the signature,
     # and it catches railing anywhere in the session, not just at the final probe.
-    w = bonus.sort_values("position_in_bandit_stream")["adaptive_window_ms"].dropna().tolist()
+    w = bonus.sort_values("position_in_bandit_stream")["window_ms"].dropna().tolist()
     if w:
         min_w, max_w = min(w), max(w)
         def max_run(seq, val):
@@ -599,12 +619,21 @@ def build_qc_flags(s: Dict[str, float]) -> Tuple[List[str], bool, str]:
     if pd.notna(s.get("mid_no_response_prop")) and s["mid_no_response_prop"] > MAX_MID_NO_RESPONSE_PROP:
         flags.append("high_mid_no_response")
     fw = s.get("staircase_final_window_ms")
-    # Floored if the final window is at/below the configured floor, or if the staircase
-    # was clamped at its own minimum for 3+ consecutive probes (works for any task floor).
-    if pd.notna(fw) and (fw <= WIN_FLOOR_MS or s.get("staircase_max_run_at_min", 0) >= 3):
-        flags.append("staircase_at_floor")
-    if pd.notna(fw) and (fw >= WIN_CEIL_MS or s.get("staircase_max_run_at_max", 0) >= 3):
-        flags.append("staircase_at_ceiling")
+    win_sd = s.get("window_sd_ms", 0.0)
+    # A constant window means v15 (fixed deadline): check it matches the expected
+    # value and that the deadline was not so tight that responses were censored.
+    if pd.notna(win_sd) and win_sd == 0:
+        if pd.notna(fw) and abs(fw - FIXED_WINDOW_MS) > 1:
+            flags.append("window_not_%dms" % FIXED_WINDOW_MS)
+    else:
+        # A varying window means a legacy staircase file. Flag it, because the
+        # staircase compresses probe RT variance and the vigor reading from these
+        # runs is not comparable to v15.
+        flags.append("legacy_staircase_run")
+        if pd.notna(fw) and (fw <= LEGACY_WIN_FLOOR_MS or s.get("staircase_max_run_at_min", 0) >= 3):
+            flags.append("staircase_at_floor")
+        if pd.notna(fw) and (fw >= LEGACY_WIN_CEIL_MS or s.get("staircase_max_run_at_max", 0) >= 3):
+            flags.append("staircase_at_ceiling")
     if s.get("n_food_rt_valid", 0) < MIN_FOOD_PROBES_FOR_VIGOR:
         flags.append("few_food_probes_for_vigor")
     if s.get("n_bonus_trials", 0) < (N_BONUS_FOOD_EXPECTED + N_BONUS_NEUTRAL_EXPECTED):
@@ -621,7 +650,7 @@ def build_qc_flags(s: Dict[str, float]) -> Tuple[List[str], bool, str]:
     if "late_disengagement" in flags:
         reasons.append("late-task disengagement (possible fatigue)")
     if "low_mid_hit_rate" in flags or "high_mid_hit_rate" in flags:
-        reasons.append("MID staircase did not constrain hit rate")
+        reasons.append("MID probe hit rate outside usable range")
     if "high_mid_premature" in flags:
         reasons.append("excessive anticipatory MID presses")
     recommend = len(reasons) > 0
@@ -635,7 +664,7 @@ def build_qc_flags(s: Dict[str, float]) -> Tuple[List[str], bool, str]:
 
 def analyze_one_file(path: Path, md5: str) -> Tuple[Dict, List[Dict]]:
     """Analyze a single run CSV; return its summary row and pooled trial rows."""
-    df = pd.read_csv(path)
+    df = normalize_window_column(pd.read_csv(path))
     pid = extract_participant_id(df, path)
     session = extract_session(df, path)
     if INCLUDE_PARTICIPANTS is not None and pid not in [str(x) for x in INCLUDE_PARTICIPANTS]:
@@ -679,7 +708,7 @@ def analyze_one_file(path: Path, md5: str) -> Tuple[Dict, List[Dict]]:
                 "participant_id": pid, "session": session, "file_name": path.name,
                 "trial_type": r.get("trial_type"), "position_in_bandit_stream": r.get("position_in_bandit_stream"),
                 "food_bonus_cue": r.get("food_bonus_cue"), "cue_type": r.get("cue_type"),
-                "target_rt_ms": r.get("target_rt_ms"), "adaptive_window_ms": r.get("adaptive_window_ms"),
+                "target_rt_ms": r.get("target_rt_ms"), "window_ms": r.get("window_ms"),
                 "target_hit": r.get("target_hit"), "target_too_fast": r.get("target_too_fast"),
                 "target_no_response": r.get("target_no_response"),
             })
@@ -688,7 +717,7 @@ def analyze_one_file(path: Path, md5: str) -> Tuple[Dict, List[Dict]]:
 
 def make_phase_rows(path: Path, pid: str, session: Optional[str]) -> List[Dict]:
     """Build the long per-phase accuracy/RT rows for one file (reread for clarity)."""
-    df = pd.read_csv(path)
+    df = normalize_window_column(pd.read_csv(path))
     bandit_raw, _ = split_trials(df)
     if not len(bandit_raw):
         return []
@@ -710,7 +739,7 @@ def make_phase_rows(path: Path, pid: str, session: Optional[str]) -> List[Dict]:
 
 def make_cue_rows(path: Path, pid: str, session: Optional[str]) -> List[Dict]:
     """Build the long per-cue-type mini-MID rows (food vs neutral) for one file."""
-    df = pd.read_csv(path)
+    df = normalize_window_column(pd.read_csv(path))
     _, bonus_raw = split_trials(df)
     if not len(bonus_raw):
         return []
@@ -851,7 +880,7 @@ def make_data_dictionary(summary_cols=None, phase_cols=None, cue_cols=None) -> p
         ("n_bonus_trials", "Mini-MID probe rows present (expected 30: 16 food + 14 neutral)."),
         ("n_food_probes", "Food-cue probe rows."),
         ("n_neutral_probes", "Neutral-cue probe rows."),
-        ("mid_hit_rate_overall", "Proportion of probes with a target hit; the staircase targets about 0.667."),
+        ("mid_hit_rate_overall", "Proportion of probes with a target hit; v15 fixed 550 ms deadline gives about 0.95+, legacy staircase runs about 0.667."),
         ("mid_hit_rate_food", "Hit rate on food-cue probes."),
         ("mid_hit_rate_neutral", "Hit rate on neutral-cue probes."),
         ("mid_premature_prop", "Proportion of probes with a too-soon (anticipatory) press."),
@@ -864,9 +893,10 @@ def make_data_dictionary(summary_cols=None, phase_cols=None, cue_cols=None) -> p
         ("n_neutral_rt_valid", "Neutral probes with a valid target RT."),
         ("food_minus_neutral_rt_ms", "Food minus neutral mean target RT; an individual-difference contrast, NOT a within-subject manipulation (no control trials)."),
         ("bonus_points_total", "Total mini-MID bonus points earned."),
-        ("staircase_final_window_ms", "Adaptive response window (ms) on the last probe; basis for floor/ceiling QC flags."),
-        ("staircase_mean_window_ms", "Mean adaptive response window (ms) across probes."),
-        ("staircase_min_window_ms", "Smallest adaptive window (ms) the staircase reached in this run."),
+        ("staircase_final_window_ms", "Probe response window (ms) on the last probe. Constant at 550 in v15; legacy staircase runs vary."),
+        ("staircase_mean_window_ms", "Mean probe response window (ms) across probes.")
+        ,("window_sd_ms", "SD of the probe response window across probes. 0 means a fixed deadline (v15); above 0 means a staircase was running (legacy v13/v14)."),
+        ("staircase_min_window_ms", "Smallest probe window (ms) reached in this run; equals the fixed deadline in v15."),
         ("staircase_max_window_ms", "Largest adaptive window (ms) the staircase reached in this run."),
         ("staircase_n_at_min", "Number of probes at the minimum window."),
         ("staircase_n_at_max", "Number of probes at the maximum window."),

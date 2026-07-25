@@ -3,26 +3,40 @@
 """
 Probabilistic 3-arm bandit with an interleaved mini-MID "bonus round".
 
-PsychoPy (Coder) port of the jsPsych task. Same reward schedule, same single
-reversal, same adaptive-window bonus, same data fields. A staged instruction
-walkthrough and a short, replayable practice block (two rigged bandit trials, a
-scripted too-soon demonstration, and three bonus rounds) precede the recorded
-task; practice never logs data and runs
-on its own RNG stream, so the recorded schedule is byte-identical to earlier
-versions (v10 onward) for any given seed. The mulberry32 RNG is
+Three-armed probabilistic reversal-learning task in which rewarded outcomes are
+craved-food images, with a speeded incentive-vigor probe (mini-MID) interleaved
+across the session to index food-cued wanting trial by trial. A staged
+instruction walkthrough and a short, replayable practice block (two rigged
+bandit trials, a scripted too-soon demonstration, and three bonus rounds)
+precede the recorded task. Practice never logs data and runs on its own RNG
+stream, so the recorded schedule is unaffected by it. The mulberry32 RNG is
 reproduced bit-for-bit from JavaScript, so a given seed yields the same bandit
-schedule as the web version (verified against the JS implementation).
+schedule as the web version.
+
+PROBE RESPONSE WINDOW IS FIXED, NOT ADAPTIVE.
+The probe deadline is a constant 550 ms for every probe and every participant.
+An adaptive staircase is deliberately not used: by construction it parks each
+participant at their own speed-accuracy threshold, which removes the slow
+response-time drift that the incentive-vigor construct consists of. Calibration
+data show the cost directly. Under a staircase, within-participant SD of log
+probe RT was 0.156 against 0.637 for self-paced bandit choice, and the
+single-probe reliability of the vigor reading (lambda, the share of a single
+reading that is state rather than measurement noise) was about 0.10. With the
+fixed 550 ms deadline, log-RT SD rose to 0.25-0.31 and lambda to about 0.33,
+replicated across independent calibration participants.
+
+550 ms was chosen from the probe RT distribution so that censoring is rare
+(pooled hit rate about 0.99, worst participant about 0.96, holding above 0.92
+even if responses slow by 20% once the deadline stops chasing them). This
+matters because censoring is not random: slow probes are exactly the ones that
+would be lost, so a tight deadline biases RT variance downward, and RT variance
+is the measurement the probe exists to provide. The deadline still imposes time
+pressure, so the probe remains a speeded incentive measure rather than a
+self-paced one.
 
 Tested against the PsychoPy 2023.2+/2024.x API (visual, core, gui,
-hardware.keyboard, parallel). Run from the PsychoPy Coder or `python bandit_mid_task_v14.py`.
-Version v14 (see TASK_VERSION), logged in every data row. Changes from v13: a
-premature (too-early) bonus response now adds a short penalty pause before the
-next round and its on-screen message states the round was lost, and the practice
-block runs a scripted "too soon" demonstration so every participant sees the
-contingency once. The staircase rule is unchanged: a premature still leaves the
-window unmoved, since an early press carries no information about target-response
-speed. None of these changes touch the bandit schedule RNG, so the recorded
-schedule stays byte-identical to v13 for a given seed.
+hardware.keyboard, parallel). Run from the PsychoPy Coder or
+`python bandit_mid_task_v15.py`. TASK_VERSION is stamped into every data row.
 
 Folder layout expected next to this file:
     stimuli/shapes/         heart.png, circle.png, triangle.png (bandit symbols)
@@ -49,7 +63,7 @@ from psychopy.hardware import keyboard
 # ════════════════════════════════════════════════════════════════════════════
 #  CONFIG  (timing in ms, mirrors the web CFG)
 # ════════════════════════════════════════════════════════════════════════════
-TASK_VERSION = 'v14'              # stamped into every data row for provenance
+TASK_VERSION = 'v15'              # stamped into every data row for provenance
 
 CFG = dict(
     N_ARMS=3,
@@ -82,12 +96,9 @@ CFG = dict(
     BONUS_FEEDBACK_MS=1500,
     BONUS_PREMATURE_PENALTY_MS=1500,   # blank pause after a too-early press, so anticipating costs time
     BONUS_PTS=15,
-    # Adaptive response-window staircase (weighted up/down ~66% hits)
-    WIN_START=400,
-    WIN_FLOOR=230,
-    WIN_CEIL=600,
-    WIN_STEP_DOWN=15,
-    WIN_STEP_UP=30,
+    # Fixed probe response window. Constant for every probe and every
+    # participant; see the module docstring for why no staircase is used.
+    FIXED_WINDOW_MS=550,
     # Bonus placement across the bandit stream
     BONUS_FIRST_AFTER=8,
     BONUS_REV_BUFFER=3,
@@ -414,7 +425,7 @@ FIELDNAMES = [
     # bonus-only
     'bonus_trial_index', 'position_in_bandit_stream', 'food_set', 'cue_type',
     'food_bonus_cue', 'cue_image', 'cue_duration_ms', 'anticipatory_delay_ms',
-    'adaptive_window_ms', 'target_response_key', 'target_rt_ms', 'premature_rt_ms',
+    'window_ms', 'target_response_key', 'target_rt_ms', 'premature_rt_ms',
     'target_hit', 'target_miss', 'target_too_fast', 'target_no_response',
     'bonus_points_earned', 'bonus_cumulative', 'bonus_hit_rate',
     'cue_onset_ms', 'delay_onset_ms', 'target_onset_ms', 'response_ms',
@@ -476,11 +487,9 @@ def main():
     run_dir, run_name = make_run_dir(settings['pid'], settings['session'])
     log = DataLog(os.path.join(run_dir, run_name + '.csv'))
     logging.LogFile(os.path.join(run_dir, run_name + '.log'), level=logging.EXP)
-    # Record the staircase configuration once so the analyzer can verify the floor
-    # actually used per run instead of relying on a hardcoded constant.
-    logging.exp('STAIRCASE start=%d floor=%d ceil=%d step_down=%d step_up=%d' %
-                (CFG['WIN_START'], CFG['WIN_FLOOR'], CFG['WIN_CEIL'],
-                 CFG['WIN_STEP_DOWN'], CFG['WIN_STEP_UP']))
+    # Record the probe deadline once so the analyzer can verify the value used
+    # per run instead of relying on a hardcoded constant.
+    logging.exp('PROBE_WINDOW fixed=%d ms' % CFG['FIXED_WINDOW_MS'])
 
     # ---- Window, triggers, photodiode --------------------------------------
     win = build_window()
@@ -599,7 +608,6 @@ def main():
         swap_count=0,
         food_set=None,
         bonus_count=0, bonus_score=0, bonus_hits=0,
-        bonus_window=CFG['WIN_START'],
         task_start=None,
     )
     swap_idx_set = set(r - 1 for r in CFG['REVERSAL_TRIALS'])   # 0-indexed reversal trials
@@ -832,7 +840,7 @@ def main():
         picked = draw_win(srand, 1) if is_food else draw_images(srand, images['neutral'], 1)
         cue_path = picked[0] if picked else None
         delay_ms = CFG['DELAY_MIN_MS'] + int(srand() * (CFG['DELAY_MAX_MS'] - CFG['DELAY_MIN_MS'] + 1))
-        window_ms = int(round(state['bonus_window']))
+        window_ms = CFG['FIXED_WINDOW_MS']      # constant across probes and participants
 
         # Phase onset timestamps (ms since t0), filled from real flip times.
         marks = dict(cue=0, delay=0, target=0, feedback=0)
@@ -931,12 +939,8 @@ def main():
             else:
                 rt_ms = round(press['rt_ms'] - marks['target'])
 
-        # Staircase + tallies (too_fast leaves the window unchanged).
+        # Tallies. The deadline is fixed, so no window update is needed here.
         hit = outcome == 'hit'
-        if hit:
-            state['bonus_window'] = max(CFG['WIN_FLOOR'], state['bonus_window'] - CFG['WIN_STEP_DOWN'])
-        elif outcome != 'too_fast':
-            state['bonus_window'] = min(CFG['WIN_CEIL'], state['bonus_window'] + CFG['WIN_STEP_UP'])
         pts = CFG['BONUS_PTS'] if hit else 0
         state['bonus_score'] += pts
         state['bonus_hits'] += 1 if hit else 0
@@ -972,7 +976,7 @@ def main():
             'food_bonus_cue': 1 if is_food else 0,
             'cue_image': cue_path or '',
             'cue_duration_ms': CFG['CUE_MS'], 'anticipatory_delay_ms': delay_ms,
-            'adaptive_window_ms': window_ms,
+            'window_ms': window_ms,
             'target_response_key': press['key'], 'target_rt_ms': rt_ms, 'premature_rt_ms': prem_rt,
             'target_hit': 1 if hit else 0,
             'target_miss': 1 if outcome == 'miss' else 0,
@@ -1062,9 +1066,9 @@ def main():
             hold([], 400)
 
         def practice_bonus_trial(is_food, force_early=False):
-            """One forgiving bonus round on a fixed (non-adaptive) window. Teaches
+            """One forgiving bonus round on a wider practice window. Teaches
             wait-for-the-square timing, including the too-soon message, without
-            touching the staircase, the bonus score, or the data log. When
+            touching the bonus score or the data log. When
             force_early is set the round scripts a premature after the cue, so the
             participant is guaranteed to see the "too soon" outcome once."""
             picked = draw_win(prand, 1) if is_food else draw_images(prand, images['neutral'], 1)
