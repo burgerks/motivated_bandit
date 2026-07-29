@@ -65,7 +65,7 @@ from psychopy.hardware import keyboard
 # ════════════════════════════════════════════════════════════════════════════
 #  CONFIG  (timing in ms, mirrors the web CFG)
 # ════════════════════════════════════════════════════════════════════════════
-TASK_VERSION = 'v16'              # stamped into every data row for provenance
+TASK_VERSION = 'v17'              # cue-stakes + silent-accrual variant of v16
 
 CFG = dict(
     N_ARMS=3,
@@ -98,11 +98,23 @@ CFG = dict(
     N_BONUS_NEUTRAL=11,
     BONUS_INTRO_MS=1000,
     CUE_MS=1500,
-    DELAY_MIN_MS=1500,
-    DELAY_MAX_MS=3000,
-    GRACE_MS=500,             # late press logged as miss-with-RT, not no_response
-    BONUS_FEEDBACK_MS=1500,
+    # Jitter between the cue picture and the target square. Narrowed from
+    # 1500-3000 so the anticipation gap is shorter and less variable (the mean
+    # and spread both drop), which tightens the RT read; keep some jitter so the
+    # target onset stays unpredictable and anticipatory presses are deterred.
+    DELAY_MIN_MS=1200,
+    DELAY_MAX_MS=2000,
+    GRACE_MS=500,             # window stays open past the deadline: late press logged with RT, not no_response
+    BONUS_FEEDBACK_MS=1500,   # used only for the premature "too soon" deterrent now
+    # Neutral gap after a hit/miss response. No points, no hit/miss valence: the
+    # bonus is accrued silently and revealed only at the end, so no reward event
+    # sits between the probe and the next bandit trial (removes the RT->bonus->
+    # learning confound at the source).
+    POST_TARGET_MS=600,
     BONUS_PREMATURE_PENALTY_MS=1500,   # blank pause after a too-early press, so anticipating costs time
+    # Stakes are shown on the cue and are EQUAL for food and neutral, so the
+    # food-vs-neutral RT difference stays clean (points buy food either way, so
+    # equal points is still food vigor without a magnitude confound).
     BONUS_PTS=15,
     # Fixed response window (staircase removed in v16). Every probe, every
     # participant, uses this one deadline so probe RT variance is preserved.
@@ -118,26 +130,35 @@ FULLSCREEN = True
 BG_COLOR = [-0.5, -0.5, -0.5]   # dark grey, PsychoPy [-1..1] RGB
 WIN_SIZE = [1280, 800]          # used only when FULLSCREEN is False
 
-SYMBOL_DIR = os.path.join('stimuli', 'shapes')
-IMG_DIRS = dict(
-    sweet=os.path.join('stimuli', 'win', 'sweet'),
-    savory=os.path.join('stimuli', 'win', 'savory'),
-    neutral=os.path.join('stimuli', 'neutral'),
-    loss=os.path.join('stimuli', 'loss'),
-)
-SYMBOL_NAMES = ['heart', 'circle', 'triangle']   # logical symbol order; files in stimuli/shapes/
+# Self-contained layout: everything is anchored to the folder this script lives in
+# (name it _task), so stimuli, the script, and the data output all sit together and
+# the task runs from one spot regardless of the working directory.
+HERE = os.path.dirname(os.path.abspath(__file__))
 
-# Every event sends the SAME marker character (a comma) to the recording system.
-# The label is what gets written to the .log; align events offline using the
-# label sequence plus the onset times in the data file.
-TRIGGER_CHAR = ','
-EVENT_CODES = dict(
-    choice_onset='choice_onset', choice_made='choice_made',
-    bandit_win='bandit_win', bandit_loss='bandit_loss',
-    bonus_intro='bonus_intro', cue_food='cue_food', cue_neutral='cue_neutral',
-    fixation='fixation', target='target', response='response',
-    bonus_feedback='bonus_feedback', anticipation='anticipation',
+SYMBOL_DIR = os.path.join(HERE, 'stimuli', 'shapes')
+IMG_DIRS = dict(
+    sweet=os.path.join(HERE, 'stimuli', 'win', 'sweet'),
+    savory=os.path.join(HERE, 'stimuli', 'win', 'savory'),
+    neutral=os.path.join(HERE, 'stimuli', 'neutral'),
+    loss=os.path.join(HERE, 'stimuli', 'loss'),
 )
+SYMBOL_NAMES = ['heart', 'circle', 'triangle']   # run 1 symbols; files in stimuli/shapes/
+# Run 2 uses three DISTINCT symbols so the model's Q-reset at the run break is honest
+# (value learned about a shape does not carry into run 2). Same folder, matched style.
+SYMBOL_NAMES_RUN2 = ['knot', 'rose', 'cinquefoil']
+
+# Each event type sends a DISTINCT trigger code (1-255), so iEEG can tell event types
+# apart (cue vs target vs response vs win/loss/feedback) from the trigger channel
+# alone, instead of every event sharing one marker. The optional photodiode carries
+# precise onset timing; these codes carry event identity. Both are logged.
+EVENT_CODES = dict(
+    choice_onset=10, choice_made=11,
+    bandit_win=20, bandit_loss=21,
+    bonus_intro=30, cue_food=31, cue_neutral=32,
+    fixation=33, anticipation=34, target=35, response=36,
+    bonus_feedback=37,
+)
+CODE_NAMES = {v: k for k, v in EVENT_CODES.items()}   # code -> name, for the log
 
 
 # ════════════════════════════════════════════════════════════════════════════
@@ -202,11 +223,11 @@ def run_dialog():
 
 
 # ════════════════════════════════════════════════════════════════════════════
-#  Triggers: every event sends a comma marker
+#  Triggers: each event sends a distinct code
 # ════════════════════════════════════════════════════════════════════════════
-# send(label) emits the comma character to the recording system (serial byte 0x2C,
-# or the comma byte 44 on a parallel port) and logs the event label. With no device
-# present the marker is logged only, so offline alignment still works from the log.
+# send(code) emits the event-specific value to the recording system (one byte on
+# serial, or a TTL value on a parallel port) and logs the code with its name. With no
+# device present the code is logged only, so offline alignment still works from the log.
 class Triggers:
     def __init__(self, mode='none', serial_port='COM3', address=0x378):
         self.mode = mode
@@ -227,12 +248,14 @@ class Triggers:
                 logging.warn('Parallel port unavailable (%s); triggers logged only.' % e)
                 self.mode = 'none'
 
-    def send(self, label):
+    def send(self, code):
+        # One byte on serial, or a TTL value on parallel. Clamped to a single byte.
+        code = int(code) & 0xFF
         if self.mode == 'serial' and self.port is not None:
-            self.port.write(TRIGGER_CHAR.encode('ascii'))   # writes b','
+            self.port.write(bytes([code]))
         elif self.mode == 'parallel' and self.port is not None:
-            self.port.setData(ord(TRIGGER_CHAR))             # comma byte = 44
-        logging.exp('TRIGGER %s (%s)' % (TRIGGER_CHAR, label))
+            self.port.setData(code)
+        logging.exp('TRIGGER %d (%s)' % (code, CODE_NAMES.get(code, '?')))
 
     def clear(self):
         if self.mode == 'parallel' and self.port is not None:
@@ -427,7 +450,7 @@ FIELDNAMES = [
     'trial', 'swap_count', 'position1', 'position2', 'position3',
     'p_reward_pos1', 'p_reward_pos2', 'p_reward_pos3',
     'choice', 'chosen_logo', 'rt_s', 'choice_late', 'outcome', 'points',
-    'optimal_position', 'is_optimal', 'optimal_points', 'regret', 'cumulative_score',
+    'optimal_position', 'is_optimal', 'optimal_points', 'regret', 'cumulative_score',  # regret = realized counterfactual (optimal_points - points), can be negative
     'anticip_ms', 'isi_ms',
     'cf_outcome_pos1', 'cf_outcome_pos2', 'cf_outcome_pos3',
     'cf_points_pos1', 'cf_points_pos2', 'cf_points_pos3',
@@ -464,16 +487,17 @@ class DataLog:
 
 
 def make_run_dir(pid, ses):
-    """Create and return (path, name) for a fresh run folder under data/. Reruns
+    """Create and return (path, name) for a fresh run folder under _task/data/. Reruns
     with the same id/session never overwrite: the copy number increments to the
     first unused value, giving data/sub-<pid>_ses-<ses>_<n>. os.makedirs fails if
     the folder already exists, so the number is claimed atomically."""
-    os.makedirs('data', exist_ok=True)
+    data_root = os.path.join(HERE, 'data')
+    os.makedirs(data_root, exist_ok=True)
     base = 'sub-%s_ses-%s' % (pid, ses)
     n = 1
     while True:
         name = '%s_%d' % (base, n)
-        path = os.path.join('data', name)
+        path = os.path.join(data_root, name)
         try:
             os.makedirs(path)
             return path, name
@@ -529,9 +553,15 @@ def main():
             return visual.Circle(win, radius=0.11, fillColor=dark, lineColor=None)
         if name == 'triangle':
             return visual.Polygon(win, edges=3, radius=0.13, fillColor=dark, lineColor=None)
+        if name == 'knot':
+            return visual.Polygon(win, edges=5, radius=0.13, fillColor=dark, lineColor=None)
+        if name == 'rose':
+            return visual.Polygon(win, edges=6, radius=0.13, fillColor=dark, lineColor=None)
+        if name == 'cinquefoil':
+            return visual.Polygon(win, edges=8, radius=0.13, fillColor=dark, lineColor=None)
         return visual.Polygon(win, edges=4, radius=0.13, fillColor=dark, lineColor=None)  # heart placeholder (diamond)
 
-    shape_stims = {n: make_symbol_stim(n) for n in SYMBOL_NAMES}
+    shape_stims = {n: make_symbol_stim(n) for n in SYMBOL_NAMES + SYMBOL_NAMES_RUN2}
     # Arrow-key labels under each slot (left, down, right map to slots 0, 1, 2).
     CHOICE_KEYS = ['left', 'down', 'right']
     arrow_oris = [180, 90, 0]                # left, down, right (clockwise degrees)
@@ -556,6 +586,10 @@ def main():
     # font does not always carry a bold weight).
     fb_center = visual.TextStim(win, text='', pos=(0, 0), height=0.10, bold=True, font='Arial')
     cue_stim = visual.ImageStim(win, pos=(0, 0))     # size set per image (aspect preserved)
+    # Stakes shown on the cue, below the picture. Equal magnitude for food and
+    # neutral, so it cues the incentive (MID-style) without a food/neutral value gap.
+    stakes_stim = visual.TextStim(win, text='', pos=(0, -0.40), height=0.05,
+                                  color=[1.0, 0.85, 0.2], bold=True, font='Arial')
     fix_stim = visual.TextStim(win, text='+', pos=(0, 0), height=0.08, color='white')
     square = visual.Rect(win, width=0.30, height=0.30, pos=(0, 0),
                          fillColor=None, lineColor=[1, 1, 1], lineWidth=15)
@@ -632,7 +666,9 @@ def main():
     state['slot_order'] = shuffle3(rand)   # screen slot  -> logical arm
 
     def sym_name(arm):
-        return SYMBOL_NAMES[state['symbol_map'][arm]]
+        # Run 2 shows the novel symbol set; practice and run 1 use the original.
+        names = SYMBOL_NAMES_RUN2 if state.get('run') == 2 else SYMBOL_NAMES
+        return names[state['symbol_map'][arm]]
 
     def save_and_close():
         log.close()
@@ -663,7 +699,8 @@ def main():
         return clk
 
     def update_header():
-        header_score.text = 'Score: %d pts    Bonus: %d pts' % (state['score'], state['bonus_score'])
+        # Bonus total is NOT shown live (silent accrual); only the bandit score.
+        header_score.text = 'Score: %d pts' % state['score']
         header_trial.text = ''                       # trial counter hidden from participant
         # Progress across the whole session (both runs), not just the current run.
         done = (state['run'] - 1) * CFG['N_TRIALS'] + state['trial']
@@ -908,16 +945,17 @@ def main():
                 trig.clear()
             return on, caught
 
-        # 2) cue
+        # 2) cue (with equal stakes shown for food and neutral)
         cue_trig = EVENT_CODES['cue_food'] if is_food else EVENT_CODES['cue_neutral']
+        stakes_stim.text = '+%d if fast' % CFG['BONUS_PTS']
         if cue_path:
             cue_stim.image = cue_path
             cue_stim.size = fit_size(cue_path, 0.8)   # larger cue (was 0.65)
-            cue_draw = [cue_stim]
+            cue_draw = [cue_stim, stakes_stim]
         else:
             sub.text = ('FOOD CUE' if is_food else 'NEUTRAL CUE') + '\n(placeholder)'
             sub.pos = (0, 0); sub.color = 'white'
-            cue_draw = [sub]
+            cue_draw = [sub, stakes_stim]
         on, caught = phase(cue_draw, CFG['CUE_MS'], cue_trig)
         marks['cue'] = round((on - t0) * 1000.0)
         sub.pos = (0, -0.08)
@@ -945,6 +983,7 @@ def main():
             on, caught = phase([], CFG['GRACE_MS'], None)
             if caught:
                 outcome = 'miss'
+                trig.send(EVENT_CODES['response'])   # late press still marks the motor response for iEEG
             else:
                 outcome = 'no_response'
 
@@ -965,19 +1004,20 @@ def main():
         state['bonus_score'] += pts
         state['bonus_hits'] += 1 if hit else 0
 
-        # 6) feedback (no pictures)
-        if hit:
-            big.text = 'Congrats!'; big.color = [0.1, 0.8, 0.3]
-            sub.text = '+%d points' % CFG['BONUS_PTS']
-        elif outcome == 'too_fast':
+        # 6) NO reward feedback (silent accrual). A hit still earns points and a
+        # miss earns none (tallied above), but nothing about the outcome or the
+        # points is shown. This removes the RT-contingent reward event that used to
+        # sit between the probe and the next bandit trial. The only post-response
+        # screen is the premature deterrent, which is instructional, not a reward.
+        if outcome == 'too_fast':
             big.text = 'Too soon!'; big.color = [0.95, 0.6, 0.1]
-            sub.text = 'Round lost. Wait for the white square before you press.'
+            sub.text = 'Wait for the white square before you press.'
+            fb_on = core.getTime()
+            hold([big, sub], CFG['BONUS_FEEDBACK_MS'], trig_code=EVENT_CODES['bonus_feedback'])
         else:
-            big.text = 'Next time respond faster.'; big.color = [0.95, 0.6, 0.1]
-            sub.text = ''
-        fb_on = core.getTime()
-        fb_clk = hold([big, sub] if sub.text else [big],
-                      CFG['BONUS_FEEDBACK_MS'], trig_code=EVENT_CODES['bonus_feedback'])
+            # Neutral fixation gap, identical after a hit or a miss (no valence).
+            fb_on = core.getTime()
+            hold([fix_stim], CFG['POST_TARGET_MS'], trig_code=EVENT_CODES['bonus_feedback'])
         marks['feedback'] = round((fb_on - t0) * 1000.0)
 
         # Extra blank pause after a premature press so anticipating is not free.
@@ -1119,13 +1159,14 @@ def main():
                         d.draw()
                     win.flip()
 
-            # Cue (food or neutral); fixation cross; then the target square.
+            # Cue (food or neutral) with the same equal stakes as the task; fixation; target.
+            stakes_stim.text = '+%d if fast' % CFG['BONUS_PTS']
             if cue_path:
                 cue_stim.image = cue_path; cue_stim.size = fit_size(cue_path, 0.8)
-                cue_draw = [cue_stim]
+                cue_draw = [cue_stim, stakes_stim]
             else:
                 sub.text = ('FOOD CUE' if is_food else 'NEUTRAL CUE') + '\n(placeholder)'
-                sub.pos = (0, 0); sub.color = 'white'; cue_draw = [sub]
+                sub.pos = (0, 0); sub.color = 'white'; cue_draw = [sub, stakes_stim]
             phase(cue_draw, CFG['CUE_MS'], is_target=False)
             sub.pos = (0, -0.08)
             if force_early:
@@ -1135,15 +1176,16 @@ def main():
             if not press['early']:
                 phase([square], window_ms, is_target=True)
 
-            # Forgiving feedback mirrors the recorded round's three messages.
+            # Practice gives TIMING guidance only (no points shown), matching the
+            # recorded round's silent accrual. Practice is not analyzed.
             if press['hit']:
-                big.text = 'Congrats!'; big.color = [0.1, 0.8, 0.3]
-                sub.text = '+%d points' % CFG['BONUS_PTS']
+                big.text = 'Good, you pressed in time.'; big.color = [0.1, 0.8, 0.3]
+                sub.text = ''
             elif press['early']:
                 big.text = 'Too soon!'; big.color = [0.95, 0.6, 0.1]
                 sub.text = 'Wait for the square.'
             else:
-                big.text = 'Next time respond faster.'; big.color = [0.95, 0.6, 0.1]
+                big.text = 'A little faster next time.'; big.color = [0.95, 0.6, 0.1]
                 sub.text = ''
             hold([big, sub] if sub.text else [big], CFG['BONUS_FEEDBACK_MS'])
             if press['early']:
@@ -1162,11 +1204,13 @@ def main():
                   "paying attention and use what you learn.\n\n"
                   "The goal is to get as many points as possible.\n\n"
                   "Let's practice 2 times.\n\nPress SPACE for next.")
-        MID = ("Great!\n\nEvery so often a short Bonus round will happen. In this "
-               "round you will see a picture (regular looking or scrambled), then a "
-               "cross will appear, and then a white square.\n\n"
-               "The moment the square appears, press ANY KEY as fast as you can to "
-               "earn bonus points.\n\nWait for the square; pressing too early does "
+        MID = ("Great!\n\nEvery so often a short Bonus round will happen. You will see "
+               "a picture with the points on offer (the same amount for every "
+               "picture), then a cross, and then a white square.\n\n"
+               "The moment the square appears, press ANY KEY as fast as you can. The "
+               "faster you are, the more of these bonus points you keep.\n\n"
+               "You will not see these points during the game; they are added up and "
+               "shown at the very end. Wait for the square; pressing too early does "
                "not count.\n\nLet's practice a couple of times.\n\nPress SPACE for next.")
         MID_DEMO = ("First, here is what happens if you press too early.\n\n"
                     "Just watch; do not press any key during the example.\n\n"
@@ -1214,6 +1258,7 @@ def main():
         arm layout) do not, so run 2 is a genuine new acquisition."""
         state['run'] = run_idx
         state['trial'] = 0
+        state['swap_count'] = 0                       # reversal counter is per-run; reset at run start
         # Reset the reward profiles to their canonical start; the reversal below
         # will rotate them mid-run exactly as in a standalone 100-trial task.
         state['profiles'] = [list(CFG['PROFILE_A']), list(CFG['PROFILE_B']),
