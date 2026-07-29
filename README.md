@@ -176,4 +176,8 @@ Because the run is now built twice (two 100-trial runs with re-drawn arms and a 
 sequence differs from v15, so v17.2 is **not** byte-identical to v15 for the same seed. This is
 intentional: the task structure changed. Within v17.2, a given seed reproduces the same schedule. The
 `sweet+savory` food set draws an extra value per image to pick a folder, so single-folder sets reproduce
+<<<<<<< HEAD
 identically while `sweet+savory` has its own draw pattern.
+=======
+identically while `sweet+savory` has its own draw pattern.
+>>>>>>> 0e3d35c0edef2cf80791b42945252c544277fa22
