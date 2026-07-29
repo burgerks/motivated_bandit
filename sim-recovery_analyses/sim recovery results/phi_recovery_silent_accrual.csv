@@ -1,0 +1,7 @@
+condition,scenario,true_phi,mean_phi_hat,bias,sd_phi_hat,detect_or_fpr_at_100
+silent,alpha_pos,0.15,0.1321,-0.0179,0.3359,0.99
+silent,null,0.0,0.0119,0.0119,0.2894,0.054
+shown,alpha_pos,0.15,0.1453,-0.0047,0.3435,0.998
+shown,null,0.0,0.0023,0.0023,0.3002,0.044
+shown_trace,alpha_pos,0.15,0.1463,-0.0037,0.3923,0.978
+shown_trace,null,0.0,0.0094,0.0094,0.2903,0.052
