@@ -1,193 +1,179 @@
-# Bandit + mini-MID bonus (PsychoPy; v15)
+# Bandit + mini-MID bonus (PsychoPy; v17.2)
 
-Three-arm probabilistic bandit with two reversals and an interleaved mini-MID incentive-vigor probe
-(16 food + 14 neutral, phase-stratified) on a fixed response deadline. Designed by Burger, and it is a
-bandit, thus the hamburglar. Total task time including practice is about 15 to 20 minutes.
+Three-arm probabilistic bandit with an interleaved mini-MID incentive-vigor probe
+(48 food + 22 neutral across the session, phase-stratified) on a fixed response deadline.
+The session runs as two independent 100-trial runs, each a fresh acquisition with its own
+reversal. Total task time including practice is about 15 to 20 minutes.
 
-Sample-size estimates from simulated-data recovery analyses are in the `recovery_power_analyses`
-folder. The realistic value of gamma (the between-subject vigor effect on a learning parameter) has
-not been estimated from real data. The v13/v14 pilot cannot provide it, because those runs used an
-adaptive staircase that compressed the probe response-time variance the vigor measure depends on.
+Sample-size and recovery figures are in the design decision record
+(`v17_2_design_decision_record.docx`). The primary test is the trial-wise `phi` coupling of
+food-probe vigor to the positive learning rate; the between-subject `gamma` route is secondary.
 
-## What changed in v15, and why
+> **Version-string note (needs reconciling):** the script constant `TASK_VERSION = 'v17'`, so every
+> data row is stamped `task_version = v17`, but the file is `bandit_mid_task_v17_2.py` and its docstring
+> still reads "Version v16". These three labels disagree. I have not changed them; flag which string is
+> canonical before the first recorded session so the stamp is unambiguous.
 
-The probe response window is now **fixed at 550 ms**. Earlier versions ran an adaptive staircase that
-tightened after each hit and loosened after each miss, converging near a 66.7% hit rate.
+## What defines v17.2 (vs the v15 single-run version)
 
-The staircase was removed because it is incompatible with the measurement. By design it holds each
-participant at their own speed-accuracy threshold, which removes the slow response-time drift that
-incentive vigor consists of. Calibration data show the size of the problem:
+- **Two runs, Q reset per run.** The 200 bandit trials are split into two independent 100-trial runs
+  with a rest break. Arms are re-drawn and Q-values reset at the break, so run 2 starts from zero.
+  Run 2 uses three distinct symbols (`knot`, `rose`, `cinquefoil`) so no learned shape value carries
+  over and the model's per-run Q reset is honest. `run` (1 or 2) is logged in every row.
+- **One reversal per run**, at trial 54 in run 1 and trial 46 in run 2 (`REVERSAL_TRIAL_BY_RUN`).
+- **More probes, single press.** 24 food + 11 neutral per run (48 + 22 total), one press per probe.
+  Probe density is the main lever on trial-wise `phi` recovery.
+- **Bonus accrued silently.** A hit earns points, but nothing is shown between the probe and the next
+  bandit trial: a neutral gap follows the response and the total is revealed only at the end. This
+  removes the RT to bonus to learning-rate confound at the source. Food and neutral stakes are equal
+  (15 points), so the food-minus-neutral RT contrast carries no magnitude difference. This supersedes
+  the earlier v16 plan to model a decaying bonus trace as a nuisance regressor.
+- **Distinct trigger codes per event** (see Triggers), replacing the single shared marker.
 
-| | staircase (v13/v14) | fixed 550 ms (v15) |
-| --- | --- | --- |
-| Within-participant SD of log probe RT | 0.156 | 0.25 to 0.31 |
-| Single-probe reliability (lambda) | about 0.10 | about 0.33 |
-| Probe hit rate | about 0.67 | about 0.95 or higher |
-| Censored readings | about 34% | 1 to 2% |
-
-Lambda is the share of one probe reading that reflects motivational state rather than measurement
-noise. The v15 value replicated across independent calibration participants.
-
-550 ms was chosen from the observed probe RT distribution. It keeps censoring rare (pooled hit rate
-about 0.99, worst participant about 0.96, holding above 0.92 even if responses slow by 20% once the
-deadline stops chasing them). Censoring matters more than it sounds: slow probes are exactly the ones
-that get lost, so a tight deadline biases RT variance downward, and RT variance is the measurement the
-probe exists to provide. The deadline still imposes time pressure, so the probe remains a speeded
-incentive measure.
-
-Data files from v15 carry a `window_ms` column holding the constant deadline. Files from v13/v14 carry
-`adaptive_window_ms` instead. The analyzer reads both and flags legacy runs.
+The fixed 550 ms probe window (staircase removed) predates v17.2; it first landed in v15 and is
+unchanged here. The long staircase-era comparison tables have been dropped from this README.
 
 ## Run
 
-To run, you need the primary script and the stimuli folder (and contents) in the same path. Requires
-PsychoPy (2023.2 or newer recommended). Install via the standalone PsychoPy app or `pip install
-psychopy`. Serial triggers also need `pyserial`.
+Place the primary script and the `stimuli/` folder (and contents) in the same path. Requires PsychoPy
+(2023.2 or newer recommended). Install via the standalone PsychoPy app or `pip install psychopy`.
+Serial triggers also need `pyserial`.
 
 ```
-python bandit_mid_task_v15.py
+python bandit_mid_task_v17_2.py
 ```
 
 A startup dialog collects participant ID, session, an optional seed (blank draws a random one, logged
 in every row), the food set (auto/sweet/savory/sweet+savory), and the iEEG options (photodiode square,
-trigger backend, serial port, parallel address). Press SPACE at the instructions to begin. The
-experimenter can abort at any time with Escape; data collected is written and kept.
+trigger backend, serial port, parallel address). Press SPACE at the instructions to begin. A short,
+replayable practice block precedes the recorded task and never logs data; it runs on its own RNG stream,
+so the recorded schedule is unaffected. The experimenter can abort at any time with Escape; data
+collected up to that point is written and kept.
 
-Reruns never overwrite: each run gets its own numbered output folder (see Output below), so the same
-ID and session can be entered repeatedly.
+Reruns never overwrite: each run gets its own numbered output folder (see Output), so the same ID and
+session can be entered repeatedly.
 
 ## Responses
 
-- Bandit choice: the LEFT, DOWN, and RIGHT arrow keys select the left, middle, and right symbol. An
-  arrow shape under each slot shows the mapping (the arrows are drawn as vector shapes, not font
-  glyphs, so they render consistently). A 4 s nudge ("Please answer faster.") appears if no key is
-  pressed, and the trial still waits for a response.
-- Bonus target: press ANY key as fast as you can the moment the square appears (PsychoPy keyboard,
-  sub-ms RT). The target is a large outlined square with a thick white border. Pressing before it
-  appears is logged as "too soon" and costs the round plus a short penalty pause.
+- **Bandit choice:** LEFT, DOWN, RIGHT arrow keys select the left, middle, and right symbol. A vector
+  arrow under each slot shows the mapping. A nudge ("Please answer faster.") appears after 4 s if no key
+  is pressed, and the trial still waits for a response.
+- **Bonus target:** press ANY key as fast as you can the moment the outlined square appears (PsychoPy
+  keyboard, sub-ms RT). Pressing before it appears is logged as "too soon" and costs the round plus a
+  short penalty pause.
 
 ## Stimuli
 
-All stimuli live under `stimuli/`. Drop your images into these folders (any .png/.jpg/.jpeg,
-auto-discovered):
+All stimuli live under `stimuli/` (any .png/.jpg/.jpeg, auto-discovered):
 
 ```
-stimuli/shapes/         heart.png, circle.png, triangle.png (the bandit symbols)
+stimuli/shapes/         bandit symbols (run 1: heart, circle, triangle; run 2: knot, rose, cinquefoil)
 stimuli/win/sweet/      sweet food images (win feedback + food bonus cue)
 stimuli/win/savory/     savory food images (win feedback + food bonus cue)
 stimuli/neutral/        neutral / scrambled images (neutral bonus cue)
 stimuli/loss/           loss feedback images
 ```
 
-Images are drawn with their aspect ratio preserved: each fits inside its display box (the bonus cue
-inside a 0.8-of-height box, win and loss feedback inside smaller boxes) without stretching, so
-non-square photos and scrambled images are not distorted. Square 1024x1024 sources still work and
-simply fill the box.
+Images are drawn with aspect ratio preserved: each fits inside its display box without stretching, so
+non-square photos and scrambled images are not distorted. With the `sweet+savory` food set, win feedback
+and the food cue draw 50/50 per image across both folders, so the two are represented equally regardless
+of file counts. Neutral cues always come from `stimuli/neutral/`.
 
-With the `sweet+savory` food set, win feedback and the food bonus cue draw from both folders, choosing
-a folder 50/50 per image and then a picture from it, so the two folders are represented equally
-regardless of how many files each holds. Neutral cues always come from `stimuli/neutral/`.
-
-If a bandit symbol file is missing, a plain dark placeholder shape is drawn instead, so the task runs
-before you add your own. Empty food/neutral/loss folders fall back to a labeled box (cues) or a drawn
-sad face (losses).
+Missing files degrade gracefully: a missing bandit symbol draws a placeholder shape, and empty
+food/neutral/loss folders fall back to a labelled box (cues) or a drawn sad face (losses), so the task
+runs before your own images are added.
 
 ## Task parameters
 
-- Reward profiles (p_win/p_loss): 80/20 (EV +6), 50/50 (EV 0), 30/70 (EV -4). Symbol-to-arm and
-  arm-to-position mappings are randomized per session, so the best option is not tied to any fixed
-  symbol or screen location.
-- 200 bandit trials, two reversals at trials 69 and 130. Each reversal rotates all three profiles in a
-  random direction (a 3-cycle, so every arm changes role, including the chance arm).
-- Bandit timing: 400 ms choice animation, then a jittered 400-800 ms anticipatory fixation (logged per
-  trial as `anticip_ms`), 1500 ms feedback, then a jittered 400-700 ms ISI (logged as `isi_ms`). The
-  pre-feedback fixation decorrelates choice-locked from feedback-locked responses and gives a clean
-  pre-feedback baseline for the iEEG recordings.
-- Bonus block: 16 food + 14 neutral, phase-stratified across the three task phases set by the
-  reversals. Each phase gets an equal count of bonus trials (about 10) with a balanced food/neutral
-  split (6/4, 5/5, 5/5), positions are spread within each phase and buffered around both reversals,
-  and cue type is shuffled within phase rather than alternating, so the upcoming cue stays
-  unpredictable. Sequence per bonus: "Bonus round!" (1 s), cue (1.5 s), anticipatory fixation jittered
-  1500-3000 ms, outlined square (550 ms), 500 ms grace, feedback (1.5 s). A hit earns 15 points.
-- Response window: fixed at 550 ms for every probe and every participant (`CFG['FIXED_WINDOW_MS']`).
-  A press up to 500 ms after the window closes is logged as a miss but keeps its target RT, so slow
-  responses still contribute a response time.
+- **Reward profiles (p_win/p_loss):** 80/20 (EV +6), 30/70 (EV -4), 50/50 (EV 0). Symbol-to-arm and
+  arm-to-position mappings are randomized per run, so the best option is not tied to any fixed symbol or
+  screen location. Reward and loss are +10 / -10 points.
+- **Bandit structure:** 100 trials per run, one reversal per run (trials 54 and 46). The reversal rotates
+  all three profiles in a random direction (a 3-cycle), so every arm changes role.
+- **Bandit timing:** 400 ms choice animation, then a jittered 400 to 800 ms anticipatory fixation
+  (`anticip_ms`), 1500 ms feedback, then a jittered 400 to 700 ms ISI (`isi_ms`). The pre-feedback
+  fixation decorrelates choice-locked from feedback-locked responses and gives a clean pre-feedback
+  baseline for iEEG.
+- **Bonus block:** 24 food + 11 neutral per run, phase-stratified within the run (the single reversal
+  splits each run into two phases; each phase gets an equal bonus count with a near-even food/neutral
+  split, positions bin-spread within phase and buffered around the reversal, cue type shuffled within
+  phase so the upcoming cue stays unpredictable). Sequence per bonus: "Bonus round!" (1 s), cue (1.5 s),
+  anticipatory fixation jittered 1200 to 2000 ms, outlined square (550 ms), 500 ms grace, then a 600 ms
+  neutral post-response gap (silent accrual). A hit earns 15 points.
+- **Probe window:** fixed 550 ms for every probe and participant (`CFG['FIXED_WINDOW_MS']`). A press up
+  to 500 ms after the window closes is logged as a miss but keeps its RT, so slow responses still
+  contribute a response time.
 
 ## Points
 
-The header shows task points and bonus points, right-justified at the top of the screen. The numeric
-trial counter is hidden from the participant (the progress bar is kept); the trial number is still
-recorded in the data. Bonus points are tracked on a separate tally and added to the task score for the
-combined TOTAL on the end screen. Bonus rows never carry a bandit win/loss outcome, so the bandit
-reward rate is unaffected.
+The header shows only the task score, right-justified at the top; the trial counter is hidden from the
+participant (the progress bar is kept), though the trial number is still recorded. Bonus points accrue
+on a separate tally that is not displayed during the task and is revealed with the combined TOTAL on the
+end screen. Bonus rows never carry a bandit win/loss outcome, so the bandit reward rate is unaffected.
 
 ## Output
 
-Each run creates its own folder under `data/`, named `sub-<pid>_ses-<ses>_<n>`, where `<n>` increments
-to the first unused number, so reruns with the same ID and session never overwrite. The folder is
-claimed atomically, so concurrent starts cannot collide. Inside it are a CSV and a matching `.log`,
-both named after the folder.
+Each run creates its own folder under `data/`, named `sub-<pid>_ses-<ses>_<n>`, where `<n>` increments to
+the first unused number, so reruns never overwrite. The folder is claimed atomically, so concurrent
+starts cannot collide. Inside are a CSV and a matching `.log`, both named after the folder.
 
-The CSV is written one row at a time and flushed (a crash or Escape quit keeps everything up to the
-last completed trial; a try/finally also closes the file on any exit). Rows are in chronological
-order; `trial_type` is `bandit`, `bonus_food`, or `bonus_neutral`. The column set includes `session`,
-`task_version`, `t_onset_s`, `anticip_ms`, `isi_ms`, `window_ms`, and `trigger_code`. The `.log`
-records every event label with its marker for offline alignment.
+The CSV is written one row at a time and flushed (a crash or Escape keeps everything up to the last
+completed trial; a try/finally also closes the file on exit). Rows are chronological; `trial_type` is
+`bandit`, `bonus_food`, or `bonus_neutral`. Columns include `session`, `task_version`, `run`, `t_onset_s`,
+`anticip_ms`, `isi_ms`, `trigger_code`, and the bonus block's `adaptive_window_ms`.
 
-`task_version` is written from the `TASK_VERSION` constant near the top of the script and is stamped
-into every data row. The `.log` also records the probe deadline once at startup, so the value actually
-used can be verified per run.
+- `run` is the 1-indexed run (1 or 2); Q resets at the run boundary.
+- `adaptive_window_ms` is kept for pipeline compatibility and now logs the fixed 550 ms constant (it is
+  no longer adaptive). There is no separate `window_ms` column.
+- `regret` holds realized counterfactual regret (`optimal_points - points`) and can be negative; this is
+  not regret in the decision-theoretic sense, so read the column name with that caveat.
+
+`task_version` is stamped into every row from the `TASK_VERSION` constant (see the version note above).
+The `.log` records every event label with its marker for offline alignment.
 
 ## Analysis
 
-- `analyze_bandit_mid_v4.py` reads a folder of run CSVs and produces subject, phase, and cue
-  summaries plus a data dictionary and a pooled trial-level export. It accepts both v15 (`window_ms`)
-  and legacy v13/v14 (`adaptive_window_ms`) files, and adds a `legacy_staircase_run` QC flag to the
-  latter, since their vigor readings are compressed and not comparable to v15.
-- `fit_bandit_mid_rl_v4.py` fits per-subject reinforcement-learning models, including the
-  craving-modulated learning-rate model whose phi parameter carries the trial-wise vigor effect.
-  Reward sensitivity rho is fixed at 1, because with a single reward magnitude only the product of rho
-  and beta is identified.
-- `bandit_recovery_script.py` runs hierarchical parameter-recovery and power simulations. Group-level
-  inference on the vigor coefficients (gamma) offers two options via `--inference`:
-  - `wald` (default): the EM Wald interval. Fast, but anti-conservative for alpha+. Across the
-    simulation grid its null rejection rate ran 0.10 to 0.16 against a nominal 0.05, and its CI
-    coverage ran 0.83 to 0.90 against a nominal 0.95, at every sample size tested. The miscalibration
-    does not shrink as N grows.
-  - `perm`: a permutation test that shuffles the vigor vector across subjects. Use `--n-perm` to set
-    the number of permutations and `--perm-mode full` to re-run the whole EM per permutation rather
-    than only the M-step regression.
-  - `both`: reports each side by side, which is the way to see how much the Wald interval inflates.
+- **`analyze_bandit_mid_v5.py`** reads a folder of run CSVs and produces subject, phase, and cue summaries
+  plus a data dictionary and a pooled trial-level export. It emits QC flags (`qc_flags` / `qc_n_flags`)
+  and a recommended-exclusion column.
+  - **Known stale item to check:** the design record flags a leftover 0.40 hit-rate floor in the QC logic
+    that predates the fixed window and may misfire on fixed-window data. Verify before trusting its QC
+    output. I have not confirmed whether this is still present in the v5 file.
+- **`fit_bandit_mid_rl_v5_2.py`** fits per-subject RL models (Q-learning / Rescorla-Wagner with separate
+  `alpha_pos` / `alpha_neg`, softmax `beta`, optional stickiness). The two 100-trial runs are fit jointly
+  with one parameter set and Q reset per run. The craving-modulated model M4 adds `alpha_pos_t =
+  alpha_pos + phi * craving_t`; M4_joint fits the embedded-MID vigor signal and a reward trace jointly, so
+  `phi_mid` is separated from ordinary reward-driven learning-rate change. Reward sensitivity `rho` is
+  fixed to 1, because with a single reward magnitude only the product of `rho` and `beta` is identified.
+- **`new_bandit_recovery_script_v2.py`** runs hierarchical-EM recovery and power for the between-subject
+  `gamma` route (residual food vigor as a group regressor on the RL parameters). Supporting simulation
+  scripts: `block_phi_recovery_v2.py` (trial-wise `phi` recovery vs probe count) and `vigor_R.py`
+  (between-subject vigor reliability R).
 
-  Confirm any alpha+ effect with the permutation option rather than the Wald interval. Whether the
-  permutation is itself well calibrated at these sample sizes has not been established, and needs a
-  run with several hundred datasets under the null before it is relied on.
+**Inference caveat (from the design record).** EM Wald intervals for `alpha+` and `phi` are
+anti-conservative in the pilot (coverage about 0.78). Confirm any `alpha+` or `phi` effect with a
+permutation test or a full posterior, not the Wald interval. Whether the permutation is itself well
+calibrated at these N has not been established.
 
-## Trigger notes
+## Triggers
 
-- Triggers: every event sends the same marker, a comma. Choose `serial` (writes the byte `,` = 0x2C to
-  the configured port) or `parallel` (writes the comma byte 44). With no device present the marker is
-  logged only. Event identity is preserved in the `.log` labels and in the data file via `trial_type`
-  and the onset-time columns. The event set includes an `anticipation` marker for the pre-feedback
-  fixation. If your recording system needs a different transport or a distinct code per event, that is
-  a small change in the `Triggers` class and `EVENT_CODES`.
-- Photodiode: a white square pulses bottom-right at every event onset (choice, anticipatory fixation,
-  outcome, cue, target square, feedback). Reposition or resize `pd_stim` for your sensor.
+- Every event type now sends a **distinct trigger code (1 to 255)** via `EVENT_CODES`, so iEEG can
+  separate event types (choice onset/made, win/loss, cue food/neutral, fixation, anticipation, target,
+  response, feedback) from the trigger channel alone. Choose `serial` or `parallel`; with no device
+  present the code is logged only. Code-to-name mapping is written to the `.log`.
+- **Photodiode:** a white square pulses bottom-right at every event onset. Reposition or resize `pd_stim`
+  for your sensor.
 - Timing is frame-locked; onset timestamps in the data are flip times.
 
 ## Reproducibility
 
-The bandit reward schedule uses the same mulberry32 generator and draw order as the web version
-(symbol placement, slot order, then per-trial outcomes), so a given seed reproduces the schedule. The
-lab spec differs from the web spec in profiles and reversals (two reversals at 69 and 130, 80/20 best
-arm), so the schedule matches the web version only where those settings match.
+The bandit reward schedule rides on the same mulberry32 generator and draw order as earlier versions
+(symbol placement, slot order, then per-trial outcomes), reproduced bit-for-bit from the JavaScript
+implementation, so a given seed reproduces the schedule. Cosmetic draws (food set, which pictures, image
+tilt, jitters, bonus schedule) run on a separate seed-derived stream.
 
-Cosmetic draws (food set, which pictures, image tilt, anticipation jitter, ISI jitter, and the bonus
-schedule) run on a separate seed-derived stream and are reproducible within PsychoPy. The bonus
-schedule is phase-stratified and lab-specific, so it does not follow the web deck order; and the
-`sweet+savory` food set draws an extra value per image to pick a folder, so single-folder sets
-reproduce exactly as before while `sweet+savory` has its own draw pattern.
-
-Removing the staircase did not touch the bandit schedule RNG, so a given seed reproduces the same
-bandit schedule as v13/v14. The probe deadline is now a constant rather than a per-probe draw, so no
-RNG draw was removed either.
+Because the run is now built twice (two 100-trial runs with re-drawn arms and a Q reset), the call
+sequence differs from v15, so v17.2 is **not** byte-identical to v15 for the same seed. This is
+intentional: the task structure changed. Within v17.2, a given seed reproduces the same schedule. The
+`sweet+savory` food set draws an extra value per image to pick a folder, so single-folder sets reproduce
+identically while `sweet+savory` has its own draw pattern.
