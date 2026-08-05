@@ -17,7 +17,9 @@ What it does
 3. Bandit: overall and phase-wise optimal-choice accuracy across the two reversals,
    win-stay / lose-shift, reversal perseveration, choice-RT vigor, regret, exploration.
 4. Mini-MID: hit rate (overall / food / neutral), target RT by cue type, premature
-   and no-response rates, staircase convergence, bonus points.
+   and no-response rates, bonus points. The staircase_* columns are legacy: the
+   staircase was removed in v16, so for v16+ files they simply echo the fixed
+   550 ms window and carry no convergence information.
 5. Hybrid: post-food-probe carryover (choice RT, optimal choice, win-stay/lose-shift)
    on the bandit trial(s) following each food probe.
 6. A second, group-level pass builds the across-subject incentive-vigor indices,
@@ -562,7 +564,14 @@ def bandit_summary(bandit: pd.DataFrame) -> Dict[str, float]:
 
 
 def mid_summary(bonus: pd.DataFrame) -> Dict[str, float]:
-    """Mini-MID hit rate, target RT by cue type, premature/no-response, staircase state."""
+    """Mini-MID hit rate, target RT by cue type, premature/no-response, window state.
+
+    NOTE on the RT columns: target_rt_ms is written only for hits and grace-period
+    responses. Premature ("too soon") presses write premature_rt_ms instead and are
+    therefore absent from every RT-based vigor measure, and no-response probes
+    contribute nothing. Both tails of the probe RT distribution are censored, and
+    asymmetrically, on the exact variable phi depends on. Treat food_mid_*_rt_ms as
+    a truncated sample, not the full RT distribution."""
     out: Dict[str, float] = {"n_bonus_trials": int(len(bonus))}
     if not len(bonus):
         return out

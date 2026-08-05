@@ -1,0 +1,289 @@
+6.7515 	EXP 	FIXED_WINDOW_MS=550 N_RUNS=2 N_TRIALS_PER_RUN=100
+6.7518 	WARNING 	Monitor specification not found. Creating a temporary one...
+6.8968 	WARNING 	User requested fullscreen with size [1280  800], but screen is actually [1920, 1080]. Using actual size
+9.3581 	EXP 	Created window1 = Window(allowGUI=False, allowStencil=False, autoLog=True, backendConf=UNKNOWN, backgroundFit=<method-wrapper '__getattribute__' of attributeSetter object at 0x169447460>, backgroundImage=<method-wrapper '__getattribute__' of attributeSetter object at 0x1694474c0>, bitsMode=UNKNOWN, blendMode='avg', bpc=(8, 8, 8), color=array([-0.5, -0.5, -0.5]), colorSpace='rgb', depthBits=8, fullscr=True, gamma=None, gammaErrorPolicy='raise', infoMsg=UNKNOWN, lms=UNKNOWN, monitor=<psychopy.monitors.calibTools.Monitor object at 0x1695f0250>, multiSample=False, name='window1', numSamples=2, pos=[np.float64(0.0), np.float64(0.0)], screen=0, size=array([3840, 2160]), stencilBits=0, stereo=False, title='PsychoPy', units='height', useFBO=False, useRetina=True, viewOri=0.0, viewPos=None, viewScale=None, waitBlanking=True, winType='pyglet')
+9.3581 	EXP 	window1: backgroundImage = None
+9.3581 	EXP 	window1: backgroundFit = 'cover'
+9.3664 	EXP 	Created unnamed Rect = Rect(__class__=<class 'psychopy.visual.rect.Rect'>, anchor=('center', 'center'), autoDraw=False, autoLog=True, closeShape=True, color=method-wrapper(...), colorSpace='rgb', contrast=None, depth=0, draggable=False, fillColor=array([0.85, 0.85, 0.85]), fillColorSpace='rgb', fillRGB=array([0.85, 0.85, 0.85]), interpolate=True, lineColor=array([0.4, 0.4, 0.4]), lineColorSpace='rgb', lineRGB=array([0.4, 0.4, 0.4]), lineWidth=2, name='unnamed Rect', opacity=1, ori=0.0, pos=array([-0.42,  0.  ]), size=array([0.34, 0.42]), units='height', vertices=ndarray(...), win=Window(...))
+9.3668 	EXP 	Created unnamed Rect = Rect(__class__=<class 'psychopy.visual.rect.Rect'>, anchor=('center', 'center'), autoDraw=False, autoLog=True, closeShape=True, color=method-wrapper(...), colorSpace='rgb', contrast=None, depth=0, draggable=False, fillColor=array([0.85, 0.85, 0.85]), fillColorSpace='rgb', fillRGB=array([0.85, 0.85, 0.85]), interpolate=True, lineColor=array([0.4, 0.4, 0.4]), lineColorSpace='rgb', lineRGB=array([0.4, 0.4, 0.4]), lineWidth=2, name='unnamed Rect', opacity=1, ori=0.0, pos=array([0., 0.]), size=array([0.34, 0.42]), units='height', vertices=ndarray(...), win=Window(...))
+9.3672 	EXP 	Created unnamed Rect = Rect(__class__=<class 'psychopy.visual.rect.Rect'>, anchor=('center', 'center'), autoDraw=False, autoLog=True, closeShape=True, color=method-wrapper(...), colorSpace='rgb', contrast=None, depth=0, draggable=False, fillColor=array([0.85, 0.85, 0.85]), fillColorSpace='rgb', fillRGB=array([0.85, 0.85, 0.85]), interpolate=True, lineColor=array([0.4, 0.4, 0.4]), lineColorSpace='rgb', lineRGB=array([0.4, 0.4, 0.4]), lineWidth=2, name='unnamed Rect', opacity=1, ori=0.0, pos=array([0.42, 0.  ]), size=array([0.34, 0.42]), units='height', vertices=ndarray(...), win=Window(...))
+9.4160 	EXP 	Created unnamed ImageStim = ImageStim(__class__=<class 'psychopy.visual.image.ImageStim'>, anchor=('center', 'center'), autoLog=True, color=array([1., 1., 1.]), colorSpace='rgb', contrast=1.0, depth=0, draggable=False, flipHoriz=np.False_, flipVert=np.False_, image=str(...), interpolate=False, mask=None, maskParams=None, name='unnamed ImageStim', opacity=1, ori=0.0, pos=array([0., 0.]), size=array([0.24, 0.24]), texRes=128, units='height', win=Window(...))
+9.4185 	EXP 	Created unnamed ImageStim = ImageStim(__class__=<class 'psychopy.visual.image.ImageStim'>, anchor=('center', 'center'), autoLog=True, color=array([1., 1., 1.]), colorSpace='rgb', contrast=1.0, depth=0, draggable=False, flipHoriz=np.False_, flipVert=np.False_, image=str(...), interpolate=False, mask=None, maskParams=None, name='unnamed ImageStim', opacity=1, ori=0.0, pos=array([0., 0.]), size=array([0.24, 0.24]), texRes=128, units='height', win=Window(...))
+9.4205 	EXP 	Created unnamed ImageStim = ImageStim(__class__=<class 'psychopy.visual.image.ImageStim'>, anchor=('center', 'center'), autoLog=True, color=array([1., 1., 1.]), colorSpace='rgb', contrast=1.0, depth=0, draggable=False, flipHoriz=np.False_, flipVert=np.False_, image=str(...), interpolate=False, mask=None, maskParams=None, name='unnamed ImageStim', opacity=1, ori=0.0, pos=array([0., 0.]), size=array([0.24, 0.24]), texRes=128, units='height', win=Window(...))
+9.4265 	EXP 	Created unnamed Polygon = Polygon(__class__=<class 'psychopy.visual.polygon.Polygon'>, anchor=('center', 'center'), autoDraw=False, autoLog=True, closeShape=True, color=method-wrapper(...), colorSpace='rgb', contrast=None, depth=0, draggable=False, fillColor=array([-0.7, -0.7, -0.7]), fillColorSpace='rgb', fillRGB=array([-0.7, -0.7, -0.7]), interpolate=True, lineColor=array([0., 0., 0.]), lineColorSpace='rgb', lineRGB=array([0, 0, 0]), lineWidth=1.5, name='unnamed Polygon', opacity=1, ori=0.0, pos=array([0., 0.]), size=array([1., 1.]), units='height', vertices=ndarray(...), win=Window(...), windingRule=None)
+9.4277 	EXP 	Created unnamed Polygon = Polygon(__class__=<class 'psychopy.visual.polygon.Polygon'>, anchor=('center', 'center'), autoDraw=False, autoLog=True, closeShape=True, color=method-wrapper(...), colorSpace='rgb', contrast=None, depth=0, draggable=False, fillColor=array([-0.7, -0.7, -0.7]), fillColorSpace='rgb', fillRGB=array([-0.7, -0.7, -0.7]), interpolate=True, lineColor=array([0., 0., 0.]), lineColorSpace='rgb', lineRGB=array([0, 0, 0]), lineWidth=1.5, name='unnamed Polygon', opacity=1, ori=0.0, pos=array([0., 0.]), size=array([1., 1.]), units='height', vertices=ndarray(...), win=Window(...), windingRule=None)
+9.4290 	EXP 	Created unnamed Polygon = Polygon(__class__=<class 'psychopy.visual.polygon.Polygon'>, anchor=('center', 'center'), autoDraw=False, autoLog=True, closeShape=True, color=method-wrapper(...), colorSpace='rgb', contrast=None, depth=0, draggable=False, fillColor=array([-0.7, -0.7, -0.7]), fillColorSpace='rgb', fillRGB=array([-0.7, -0.7, -0.7]), interpolate=True, lineColor=array([0., 0., 0.]), lineColorSpace='rgb', lineRGB=array([0, 0, 0]), lineWidth=1.5, name='unnamed Polygon', opacity=1, ori=0.0, pos=array([0., 0.]), size=array([1., 1.]), units='height', vertices=ndarray(...), win=Window(...), windingRule=None)
+9.4297 	EXP 	Created unnamed ShapeStim = ShapeStim(__class__=<class 'psychopy.visual.shape.ShapeStim'>, anchor=('center', 'center'), autoDraw=False, autoLog=True, closeShape=True, color=method-wrapper(...), colorSpace='rgb', contrast=None, depth=0, draggable=False, fillColor=array([1, 1, 1]), fillColorSpace='rgb', fillRGB=array([1, 1, 1]), interpolate=True, lineColor=array([1., 1., 1.]), lineColorSpace='rgb', lineRGB=array([1, 1, 1]), lineWidth=1.5, name='unnamed ShapeStim', opacity=1.0, ori=180.0, pos=array([-0.42, -0.3 ]), size=array([1., 1.]), units='height', vertices=ndarray(...), win=Window(...), windingRule=None)
+9.4304 	EXP 	Created unnamed ShapeStim = ShapeStim(__class__=<class 'psychopy.visual.shape.ShapeStim'>, anchor=('center', 'center'), autoDraw=False, autoLog=True, closeShape=True, color=method-wrapper(...), colorSpace='rgb', contrast=None, depth=0, draggable=False, fillColor=array([1, 1, 1]), fillColorSpace='rgb', fillRGB=array([1, 1, 1]), interpolate=True, lineColor=array([1., 1., 1.]), lineColorSpace='rgb', lineRGB=array([1, 1, 1]), lineWidth=1.5, name='unnamed ShapeStim', opacity=1.0, ori=90.0, pos=array([ 0. , -0.3]), size=array([1., 1.]), units='height', vertices=ndarray(...), win=Window(...), windingRule=None)
+9.4310 	EXP 	Created unnamed ShapeStim = ShapeStim(__class__=<class 'psychopy.visual.shape.ShapeStim'>, anchor=('center', 'center'), autoDraw=False, autoLog=True, closeShape=True, color=method-wrapper(...), colorSpace='rgb', contrast=None, depth=0, draggable=False, fillColor=array([1, 1, 1]), fillColorSpace='rgb', fillRGB=array([1, 1, 1]), interpolate=True, lineColor=array([1., 1., 1.]), lineColorSpace='rgb', lineRGB=array([1, 1, 1]), lineWidth=1.5, name='unnamed ShapeStim', opacity=1.0, ori=0.0, pos=array([ 0.42, -0.3 ]), size=array([1., 1.]), units='height', vertices=ndarray(...), win=Window(...), windingRule=None)
+9.4378 	EXP 	Created unnamed TextStim = TextStim(__class__=<class 'psychopy.visual.text.TextStim'>, alignHoriz=method-wrapper(...), alignText='center', alignVert=method-wrapper(...), anchorHoriz='right', anchorVert='center', antialias=True, autoDraw=False, autoLog=True, bold=False, color=array([1., 1., 1.]), colorSpace='rgb', contrast=1.0, depth=0, draggable=False, flipHoriz=False, flipVert=False, font='', fontFiles=[], height=0.035, italic=False, languageStyle='LTR', name='unnamed TextStim', opacity=1.0, ori=0.0, pos=array([0.84888889, 0.45      ]), rgb=UNKNOWN, text='', units='height', win=Window(...), wrapWidth=1)
+9.4382 	EXP 	Created unnamed TextStim = TextStim(__class__=<class 'psychopy.visual.text.TextStim'>, alignHoriz=method-wrapper(...), alignText='center', alignVert=method-wrapper(...), anchorHoriz='right', anchorVert='center', antialias=True, autoDraw=False, autoLog=True, bold=False, color=array([1., 1., 1.]), colorSpace='rgb', contrast=1.0, depth=0, draggable=False, flipHoriz=False, flipVert=False, font='', fontFiles=[], height=0.035, italic=False, languageStyle='LTR', name='unnamed TextStim', opacity=1.0, ori=0.0, pos=array([0.84888889, 0.45      ]), rgb=UNKNOWN, text='', units='height', win=Window(...), wrapWidth=1)
+9.4388 	EXP 	Created unnamed Rect = Rect(__class__=<class 'psychopy.visual.rect.Rect'>, anchor=('center', 'center'), autoDraw=False, autoLog=True, closeShape=True, color=method-wrapper(...), colorSpace='rgb', contrast=None, depth=0, draggable=False, fillColor=array([0.2, 0.2, 0.2]), fillColorSpace='rgb', fillRGB=array([0.2, 0.2, 0.2]), interpolate=True, lineColor=array([0., 0., 0.]), lineColorSpace='rgb', lineRGB=array([0, 0, 0]), lineWidth=1.5, name='unnamed Rect', opacity=1, ori=0.0, pos=array([0.  , 0.49]), size=array([1.77777778, 0.012     ]), units='height', vertices=ndarray(...), win=Window(...))
+9.4393 	EXP 	Created unnamed Rect = Rect(__class__=<class 'psychopy.visual.rect.Rect'>, anchor=('left', 'center'), autoDraw=False, autoLog=True, closeShape=True, color=method-wrapper(...), colorSpace='rgb', contrast=None, depth=0, draggable=False, fillColor=array([0.1, 0.6, 0.4]), fillColorSpace='rgb', fillRGB=array([0.1, 0.6, 0.4]), interpolate=True, lineColor=array([0., 0., 0.]), lineColorSpace='rgb', lineRGB=array([0, 0, 0]), lineWidth=1.5, name='unnamed Rect', opacity=1, ori=0.0, pos=array([0.  , 0.49]), size=array([0.0001, 0.012 ]), units='height', vertices=ndarray(...), win=Window(...))
+9.4396 	EXP 	Created unnamed TextStim = TextStim(__class__=<class 'psychopy.visual.text.TextStim'>, alignHoriz=method-wrapper(...), alignText='center', alignVert=method-wrapper(...), anchorHoriz='center', anchorVert='center', antialias=True, autoDraw=False, autoLog=True, bold=False, color=array([1., 1., 1.]), colorSpace='rgb', contrast=1.0, depth=0, draggable=False, flipHoriz=False, flipVert=False, font='', fontFiles=[], height=0.045, italic=False, languageStyle='LTR', name='unnamed TextStim', opacity=1.0, ori=0.0, pos=array([ 0.  , -0.36]), rgb=UNKNOWN, text='', units='height', win=Window(...), wrapWidth=1)
+9.4412 	EXP 	Created unnamed TextStim = TextStim(__class__=<class 'psychopy.visual.text.TextStim'>, alignHoriz=method-wrapper(...), alignText='center', alignVert=method-wrapper(...), anchorHoriz='center', anchorVert='center', antialias=True, autoDraw=False, autoLog=True, bold=True, color=array([1., 1., 1.]), colorSpace='rgb', contrast=1.0, depth=0, draggable=False, flipHoriz=False, flipVert=False, font='Arial', fontFiles=[], height=0.1, italic=False, languageStyle='LTR', name='unnamed TextStim', opacity=1.0, ori=0.0, pos=array([0., 0.]), rgb=UNKNOWN, text='', units='height', win=Window(...), wrapWidth=1)
+9.4418 	EXP 	Created unnamed ImageStim = ImageStim(__class__=<class 'psychopy.visual.image.ImageStim'>, anchor=('center', 'center'), autoLog=True, color=array([1., 1., 1.]), colorSpace='rgb', contrast=1.0, depth=0, draggable=False, flipHoriz=np.False_, flipVert=np.False_, image=None, interpolate=False, mask=None, maskParams=None, name='unnamed ImageStim', opacity=1, ori=0.0, pos=array([0., 0.]), size=array([1., 1.]), texRes=128, units='height', win=Window(...))
+9.4421 	EXP 	Created unnamed TextStim = TextStim(__class__=<class 'psychopy.visual.text.TextStim'>, alignHoriz=method-wrapper(...), alignText='center', alignVert=method-wrapper(...), anchorHoriz='center', anchorVert='center', antialias=True, autoDraw=False, autoLog=True, bold=True, color=array([1.  , 0.85, 0.2 ]), colorSpace='rgb', contrast=1.0, depth=0, draggable=False, flipHoriz=False, flipVert=False, font='Arial', fontFiles=[], height=0.05, italic=False, languageStyle='LTR', name='unnamed TextStim', opacity=1.0, ori=0.0, pos=array([ 0. , -0.4]), rgb=UNKNOWN, text='', units='height', win=Window(...), wrapWidth=1)
+9.4704 	EXP 	Created unnamed TextStim = TextStim(__class__=<class 'psychopy.visual.text.TextStim'>, alignHoriz=method-wrapper(...), alignText='center', alignVert=method-wrapper(...), anchorHoriz='center', anchorVert='center', antialias=True, autoDraw=False, autoLog=True, bold=False, color=array([1., 1., 1.]), colorSpace='rgb', contrast=1.0, depth=0, draggable=False, flipHoriz=False, flipVert=False, font='', fontFiles=[], height=np.float64(0.08), italic=False, languageStyle='LTR', name='unnamed TextStim', opacity=1.0, ori=0.0, pos=array([0., 0.]), rgb=UNKNOWN, text='+', units='height', win=Window(...), wrapWidth=1)
+9.4710 	EXP 	Created unnamed Rect = Rect(__class__=<class 'psychopy.visual.rect.Rect'>, anchor=('center', 'center'), autoDraw=False, autoLog=True, closeShape=True, color=method-wrapper(...), colorSpace='rgb', contrast=None, depth=0, draggable=False, fillColor=array([0, 0, 0]), fillColorSpace='rgb', fillRGB=array([0, 0, 0]), interpolate=True, lineColor=array([1., 1., 1.]), lineColorSpace='rgb', lineRGB=array([1, 1, 1]), lineWidth=15, name='unnamed Rect', opacity=1, ori=0.0, pos=array([0., 0.]), size=array([0.3, 0.3]), units='height', vertices=ndarray(...), win=Window(...))
+9.4714 	EXP 	Created unnamed TextStim = TextStim(__class__=<class 'psychopy.visual.text.TextStim'>, alignHoriz=method-wrapper(...), alignText='center', alignVert=method-wrapper(...), anchorHoriz='center', anchorVert='center', antialias=True, autoDraw=False, autoLog=True, bold=True, color=array([1., 1., 1.]), colorSpace='rgb', contrast=1.0, depth=0, draggable=False, flipHoriz=False, flipVert=False, font='', fontFiles=[], height=0.07, italic=False, languageStyle='LTR', name='unnamed TextStim', opacity=1.0, ori=0.0, pos=array([0.  , 0.05]), rgb=UNKNOWN, text='', units='height', win=Window(...), wrapWidth=1)
+9.4718 	EXP 	Created unnamed TextStim = TextStim(__class__=<class 'psychopy.visual.text.TextStim'>, alignHoriz=method-wrapper(...), alignText='center', alignVert=method-wrapper(...), anchorHoriz='center', anchorVert='center', antialias=True, autoDraw=False, autoLog=True, bold=False, color=array([1., 1., 1.]), colorSpace='rgb', contrast=1.0, depth=0, draggable=False, flipHoriz=False, flipVert=False, font='', fontFiles=[], height=0.04, italic=False, languageStyle='LTR', name='unnamed TextStim', opacity=1.0, ori=0.0, pos=array([ 0.  , -0.08]), rgb=UNKNOWN, text='', units='height', win=Window(...), wrapWidth=1)
+10.4915 	EXP 	Created unnamed ImageStim = ImageStim(__class__=<class 'psychopy.visual.image.ImageStim'>, anchor=('center', 'center'), autoLog=True, color=array([1., 1., 1.]), colorSpace='rgb', contrast=1.0, depth=0, draggable=False, flipHoriz=np.False_, flipVert=np.False_, image=None, interpolate=False, mask=None, maskParams=None, name='unnamed ImageStim', opacity=1, ori=0.0, pos=array([-0.53333333,  0.28      ]), size=array([1., 1.]), texRes=128, units='height', win=Window(...))
+10.4921 	EXP 	Created unnamed ImageStim = ImageStim(__class__=<class 'psychopy.visual.image.ImageStim'>, anchor=('center', 'center'), autoLog=True, color=array([1., 1., 1.]), colorSpace='rgb', contrast=1.0, depth=0, draggable=False, flipHoriz=np.False_, flipVert=np.False_, image=None, interpolate=False, mask=None, maskParams=None, name='unnamed ImageStim', opacity=1, ori=0.0, pos=array([0.53333333, 0.28      ]), size=array([1., 1.]), texRes=128, units='height', win=Window(...))
+10.4926 	EXP 	Created unnamed ImageStim = ImageStim(__class__=<class 'psychopy.visual.image.ImageStim'>, anchor=('center', 'center'), autoLog=True, color=array([1., 1., 1.]), colorSpace='rgb', contrast=1.0, depth=0, draggable=False, flipHoriz=np.False_, flipVert=np.False_, image=None, interpolate=False, mask=None, maskParams=None, name='unnamed ImageStim', opacity=1, ori=0.0, pos=array([-0.53333333, -0.28      ]), size=array([1., 1.]), texRes=128, units='height', win=Window(...))
+10.4931 	EXP 	Created unnamed ImageStim = ImageStim(__class__=<class 'psychopy.visual.image.ImageStim'>, anchor=('center', 'center'), autoLog=True, color=array([1., 1., 1.]), colorSpace='rgb', contrast=1.0, depth=0, draggable=False, flipHoriz=np.False_, flipVert=np.False_, image=None, interpolate=False, mask=None, maskParams=None, name='unnamed ImageStim', opacity=1, ori=0.0, pos=array([ 0.53333333, -0.28      ]), size=array([1., 1.]), texRes=128, units='height', win=Window(...))
+10.5358 	EXP 	PRACTICE start
+10.5397 	EXP 	Created unnamed TextStim = TextStim(__class__=<class 'psychopy.visual.text.TextStim'>, alignHoriz=method-wrapper(...), alignText='center', alignVert=method-wrapper(...), anchorHoriz='center', anchorVert='center', antialias=True, autoDraw=False, autoLog=True, bold=False, color=array([1., 1., 1.]), colorSpace='rgb', contrast=1.0, depth=0, draggable=False, flipHoriz=False, flipVert=False, font='', fontFiles=[], height=np.float64(0.04), italic=False, languageStyle='LTR', name='unnamed TextStim', opacity=1.0, ori=0.0, pos=array([0., 0.]), rgb=UNKNOWN, text='Hello World', units='height', win=Window(...), wrapWidth=1.3)
+10.5425 	EXP 	Created unnamed TextStim = TextStim(__class__=<class 'psychopy.visual.text.TextStim'>, alignHoriz=method-wrapper(...), alignText='center', alignVert=method-wrapper(...), anchorHoriz='center', anchorVert='center', antialias=True, autoDraw=False, autoLog=True, bold=False, color=array([0.6, 0.6, 0.6]), colorSpace='rgb', contrast=1.0, depth=0, draggable=False, flipHoriz=False, flipVert=False, font='', fontFiles=[], height=np.float64(0.03), italic=False, languageStyle='LTR', name='unnamed TextStim', opacity=1.0, ori=0.0, pos=array([0.  , 0.45]), rgb=UNKNOWN, text='Practice', units='height', win=Window(...), wrapWidth=1)
+10.5746 	EXP 	unnamed TextStim: height = np.float64(0.04)
+10.5746 	EXP 	unnamed TextStim: height = np.float64(0.04)
+10.5746 	EXP 	unnamed TextStim: height = np.float64(0.04)
+10.5746 	EXP 	unnamed TextStim: text = 'In this game you are going to earn points.\nYou can earn points two different ways: a regular round and a bonus round.\n\nPress SPACE for next.'
+11.2938 	EXP 	Device response: <KeyPress from None: t=11.290720625082031, value=space, duration=None>
+11.3037 	DATA 	Keypress: space
+11.4415 	EXP 	Device response: <KeyPress from None: t=11.290720625082031, value=space, duration=0.14831541595049202>
+11.4579 	EXP 	unnamed TextStim: height = np.float64(0.04)
+11.4579 	EXP 	unnamed TextStim: height = np.float64(0.04)
+11.4579 	EXP 	unnamed TextStim: height = np.float64(0.04)
+11.4579 	EXP 	unnamed TextStim: text = "You'll see three different shapes on the screen. Select one using the LEFT, DOWN, or RIGHT arrow key. If you select correctly, you'll receive 10 points. If you miss, you'll lose 10 points.\n\nSome symbols win more often than others. None of them win or lose every time. The best one can change during the task, so keep paying attention and use what you learn.\n\nThe goal is to get as many points as possible.\n\nLet's practice 2 times.\n\nPress SPACE for next."
+12.1583 	EXP 	Device response: <KeyPress from None: t=12.155081083066761, value=space, duration=None>
+12.1593 	DATA 	Keypress: space
+12.3416 	EXP 	Device response: <KeyPress from None: t=12.155081083066761, value=space, duration=0.1759284168947488>
+12.4080 	EXP 	unnamed Rect: fillColor = [0.85, 0.85, 0.85]
+12.4080 	EXP 	unnamed Rect: fillColor = [0.85, 0.85, 0.85]
+12.4080 	EXP 	unnamed Rect: fillColor = [0.85, 0.85, 0.85]
+12.4080 	EXP 	unnamed TextStim: text = ''
+12.4080 	EXP 	unnamed TextStim: foreColor = 'white'
+12.4080 	EXP 	unnamed TextStim: height = np.float64(0.045)
+12.4080 	EXP 	unnamed TextStim: height = np.float64(0.045)
+12.4080 	EXP 	unnamed TextStim: height = np.float64(0.045)
+12.4080 	EXP 	unnamed TextStim: text = ''
+13.4063 	DATA 	Keypress: right
+13.4085 	EXP 	Device response: <KeyPress from None: t=13.38168350001797, value=right, duration=None>
+13.5917 	EXP 	Device response: <KeyPress from None: t=13.38168350001797, value=right, duration=0.2046670001000166>
+14.5915 	EXP 	unnamed TextStim: height = np.float64(0.1)
+14.5915 	EXP 	unnamed TextStim: height = np.float64(0.1)
+14.5915 	EXP 	unnamed TextStim: height = np.float64(0.1)
+14.5915 	EXP 	unnamed TextStim: text = '-10 Points'
+14.5915 	EXP 	unnamed TextStim: foreColor = [0.9, 0.2, 0.2]
+14.5915 	EXP 	unnamed ImageStim: ori = 1.25
+14.5915 	EXP 	unnamed ImageStim: image = '/Users/burgerks/Documents/GitHub/motivated_bandit/_task/stimuli/loss/lose_pic.png'
+16.5582 	EXP 	unnamed Rect: fillColor = [0.85, 0.85, 0.85]
+16.5582 	EXP 	unnamed Rect: fillColor = [0.85, 0.85, 0.85]
+16.5582 	EXP 	unnamed Rect: fillColor = [0.85, 0.85, 0.85]
+16.5582 	EXP 	unnamed TextStim: text = ''
+16.5582 	EXP 	unnamed TextStim: foreColor = 'white'
+16.9753 	EXP 	Device response: <KeyPress from None: t=16.972580624977127, value=down, duration=None>
+16.9806 	DATA 	Keypress: down
+17.1252 	EXP 	Device response: <KeyPress from None: t=16.972580624977127, value=down, duration=0.1362947910092771>
+18.4084 	EXP 	unnamed TextStim: height = np.float64(0.1)
+18.4084 	EXP 	unnamed TextStim: height = np.float64(0.1)
+18.4084 	EXP 	unnamed TextStim: height = np.float64(0.1)
+18.4084 	EXP 	unnamed TextStim: text = '+10 Points'
+18.4084 	EXP 	unnamed TextStim: foreColor = [0.1, 0.8, 0.3]
+18.4084 	EXP 	unnamed ImageStim: ori = -2
+18.4084 	EXP 	unnamed ImageStim: image = '/Users/burgerks/Documents/GitHub/motivated_bandit/_task/stimuli/win/sweet/sweet_bandit_062.jpg'
+18.4084 	EXP 	unnamed ImageStim: ori = 4
+18.4084 	EXP 	unnamed ImageStim: image = '/Users/burgerks/Documents/GitHub/motivated_bandit/_task/stimuli/win/sweet/sweet_bandit_067.jpg'
+18.4084 	EXP 	unnamed ImageStim: ori = 0
+18.4084 	EXP 	unnamed ImageStim: image = '/Users/burgerks/Documents/GitHub/motivated_bandit/_task/stimuli/win/sweet/sweet_bandit_115.jpg'
+18.4084 	EXP 	unnamed ImageStim: ori = -2
+18.4084 	EXP 	unnamed ImageStim: image = '/Users/burgerks/Documents/GitHub/motivated_bandit/_task/stimuli/win/sweet/sweet_bandit_081.jpg'
+20.3750 	EXP 	unnamed TextStim: height = np.float64(0.04)
+20.3750 	EXP 	unnamed TextStim: height = np.float64(0.04)
+20.3750 	EXP 	unnamed TextStim: height = np.float64(0.04)
+20.3750 	EXP 	unnamed TextStim: text = "Great!\n\nEvery so often a short Bonus round will happen. You will see a picture with the points on offer (the same amount for every picture), then a cross, and then a white square.\n\nThe moment the square appears, press ANY KEY as fast as you can. The faster you are, the more of these bonus points you keep.\n\nYou will not see these points during the game; they are added up and shown at the very end. Wait for the square; pressing too early does not count.\n\nLet's practice a couple of times.\n\nPress SPACE for next."
+21.7515 	DATA 	Keypress: space
+21.7589 	EXP 	Device response: <KeyPress from None: t=21.74576387507841, value=space, duration=None>
+21.9254 	EXP 	Device response: <KeyPress from None: t=21.74576387507841, value=space, duration=0.1763314998243004>
+21.9419 	EXP 	unnamed TextStim: height = np.float64(0.04)
+21.9419 	EXP 	unnamed TextStim: height = np.float64(0.04)
+21.9419 	EXP 	unnamed TextStim: height = np.float64(0.04)
+21.9419 	EXP 	unnamed TextStim: text = 'First, here is what happens if you press too early.\n\nJust watch; do not press any key during the example.\n\nPress SPACE to see it.'
+22.8154 	DATA 	Keypress: space
+22.8256 	EXP 	Device response: <KeyPress from None: t=22.812756333034486, value=space, duration=None>
+22.9255 	EXP 	Device response: <KeyPress from None: t=22.812756333034486, value=space, duration=0.10430549993179739>
+22.9419 	EXP 	unnamed TextStim: height = np.float64(0.07)
+22.9419 	EXP 	unnamed TextStim: height = np.float64(0.07)
+22.9419 	EXP 	unnamed TextStim: height = np.float64(0.07)
+22.9419 	EXP 	unnamed TextStim: text = 'Bonus round!'
+22.9419 	EXP 	unnamed TextStim: foreColor = 'white'
+24.0587 	EXP 	unnamed TextStim: height = np.float64(0.05)
+24.0587 	EXP 	unnamed TextStim: height = np.float64(0.05)
+24.0587 	EXP 	unnamed TextStim: height = np.float64(0.05)
+24.0587 	EXP 	unnamed TextStim: text = '+15 if fast'
+24.0587 	EXP 	unnamed ImageStim: image = '/Users/burgerks/Documents/GitHub/motivated_bandit/_task/stimuli/win/sweet/sweet_bandit_067.jpg'
+25.5920 	EXP 	unnamed TextStim: height = np.float64(0.07)
+25.5920 	EXP 	unnamed TextStim: height = np.float64(0.07)
+25.5920 	EXP 	unnamed TextStim: height = np.float64(0.07)
+25.5920 	EXP 	unnamed TextStim: text = 'Too soon!'
+25.5920 	EXP 	unnamed TextStim: foreColor = [0.95, 0.6, 0.1]
+25.5920 	EXP 	unnamed TextStim: height = np.float64(0.04)
+25.5920 	EXP 	unnamed TextStim: height = np.float64(0.04)
+25.5920 	EXP 	unnamed TextStim: height = np.float64(0.04)
+25.5920 	EXP 	unnamed TextStim: text = 'Wait for the square.'
+28.6255 	EXP 	unnamed TextStim: height = np.float64(0.04)
+28.6255 	EXP 	unnamed TextStim: height = np.float64(0.04)
+28.6255 	EXP 	unnamed TextStim: height = np.float64(0.04)
+28.6255 	EXP 	unnamed TextStim: text = "Ok, that's what it looks like when you press too soon.\n\nRemember, wait for the square.\n\nNow let's have you practice.\n\nPress SPACE to continue."
+29.6968 	DATA 	Keypress: space
+29.7093 	EXP 	Device response: <KeyPress from None: t=29.693524207919836, value=space, duration=None>
+29.7924 	EXP 	Device response: <KeyPress from None: t=29.693524207919836, value=space, duration=0.09828983317129314>
+29.8089 	EXP 	unnamed TextStim: height = np.float64(0.07)
+29.8089 	EXP 	unnamed TextStim: height = np.float64(0.07)
+29.8089 	EXP 	unnamed TextStim: height = np.float64(0.07)
+29.8089 	EXP 	unnamed TextStim: text = 'Bonus round!'
+29.8089 	EXP 	unnamed TextStim: foreColor = 'white'
+30.8921 	EXP 	unnamed TextStim: text = '+15 if fast'
+30.8921 	EXP 	unnamed ImageStim: image = '/Users/burgerks/Documents/GitHub/motivated_bandit/_task/stimuli/neutral/bandit_021.jpg'
+34.5596 	EXP 	Device response: <KeyPress from None: t=34.55778891593218, value=down, duration=None>
+34.5644 	DATA 	Keypress: down
+34.6761 	EXP 	Device response: <KeyPress from None: t=34.55778891593218, value=down, duration=0.10225679213181138>
+34.6925 	EXP 	unnamed TextStim: height = np.float64(0.07)
+34.6925 	EXP 	unnamed TextStim: height = np.float64(0.07)
+34.6925 	EXP 	unnamed TextStim: height = np.float64(0.07)
+34.6925 	EXP 	unnamed TextStim: text = 'Good, you pressed in time.'
+34.6925 	EXP 	unnamed TextStim: foreColor = [0.1, 0.8, 0.3]
+34.6925 	EXP 	unnamed TextStim: height = np.float64(0.04)
+34.6925 	EXP 	unnamed TextStim: height = np.float64(0.04)
+34.6925 	EXP 	unnamed TextStim: height = np.float64(0.04)
+34.6925 	EXP 	unnamed TextStim: text = ''
+36.2093 	EXP 	unnamed TextStim: height = np.float64(0.07)
+36.2093 	EXP 	unnamed TextStim: height = np.float64(0.07)
+36.2093 	EXP 	unnamed TextStim: height = np.float64(0.07)
+36.2093 	EXP 	unnamed TextStim: text = 'Bonus round!'
+36.2093 	EXP 	unnamed TextStim: foreColor = 'white'
+37.2927 	EXP 	unnamed TextStim: text = '+15 if fast'
+37.2927 	EXP 	unnamed ImageStim: image = '/Users/burgerks/Documents/GitHub/motivated_bandit/_task/stimuli/win/sweet/sweet_bandit_062.jpg'
+40.6158 	DATA 	Keypress: down
+40.6266 	EXP 	Device response: <KeyPress from None: t=40.61248195799999, value=down, duration=None>
+40.7265 	EXP 	Device response: <KeyPress from None: t=40.61248195799999, value=down, duration=0.10226766695268452>
+40.7429 	EXP 	unnamed TextStim: height = np.float64(0.07)
+40.7429 	EXP 	unnamed TextStim: height = np.float64(0.07)
+40.7429 	EXP 	unnamed TextStim: height = np.float64(0.07)
+40.7429 	EXP 	unnamed TextStim: text = 'Good, you pressed in time.'
+40.7429 	EXP 	unnamed TextStim: foreColor = [0.1, 0.8, 0.3]
+40.7429 	EXP 	unnamed TextStim: text = ''
+42.2596 	EXP 	unnamed TextStim: height = np.float64(0.07)
+42.2596 	EXP 	unnamed TextStim: height = np.float64(0.07)
+42.2596 	EXP 	unnamed TextStim: height = np.float64(0.07)
+42.2596 	EXP 	unnamed TextStim: text = 'Bonus round!'
+42.2596 	EXP 	unnamed TextStim: foreColor = 'white'
+43.3597 	EXP 	unnamed TextStim: text = '+15 if fast'
+43.3597 	EXP 	unnamed ImageStim: image = '/Users/burgerks/Documents/GitHub/motivated_bandit/_task/stimuli/win/sweet/sweet_bandit_079.jpg'
+47.1651 	DATA 	Keypress: down
+47.1769 	EXP 	Device response: <KeyPress from None: t=47.16203066590242, value=down, duration=None>
+47.2767 	EXP 	Device response: <KeyPress from None: t=47.16203066590242, value=down, duration=0.11430379212833941>
+47.2932 	EXP 	unnamed TextStim: height = np.float64(0.07)
+47.2932 	EXP 	unnamed TextStim: height = np.float64(0.07)
+47.2932 	EXP 	unnamed TextStim: height = np.float64(0.07)
+47.2932 	EXP 	unnamed TextStim: text = 'Good, you pressed in time.'
+47.2932 	EXP 	unnamed TextStim: foreColor = [0.1, 0.8, 0.3]
+47.2932 	EXP 	unnamed TextStim: text = ''
+48.8100 	EXP 	unnamed TextStim: height = np.float64(0.04)
+48.8100 	EXP 	unnamed TextStim: height = np.float64(0.04)
+48.8100 	EXP 	unnamed TextStim: height = np.float64(0.04)
+48.8100 	EXP 	unnamed TextStim: text = 'Nice work!\n\nDo you understand the task, or would you like to do more practice rounds?\n\nPress RETURN to practice again        Press SPACE to begin the task\n\nThe whole task takes about 15-20 minutes.'
+51.3317 	DATA 	Keypress: space
+51.3438 	EXP 	Device response: <KeyPress from None: t=51.32787725003436, value=space, duration=None>
+51.4603 	EXP 	Device response: <KeyPress from None: t=51.32787725003436, value=space, duration=0.12831291602924466>
+51.4605 	EXP 	PRACTICE end
+51.4605 	EXP 	VAS start
+51.4755 	EXP 	Created unnamed TextStim = TextStim(__class__=<class 'psychopy.visual.text.TextStim'>, alignHoriz=method-wrapper(...), alignText='center', alignVert=method-wrapper(...), anchorHoriz='center', anchorVert='center', antialias=True, autoDraw=False, autoLog=True, bold=False, color=array([1., 1., 1.]), colorSpace='rgb', contrast=1.0, depth=0, draggable=False, flipHoriz=False, flipVert=False, font='', fontFiles=[], height=np.float64(0.05), italic=False, languageStyle='LTR', name='unnamed TextStim', opacity=1.0, ori=0.0, pos=array([0.  , 0.25]), rgb=UNKNOWN, text='How hungry do you feel right now?', units='height', win=Window(...), wrapWidth=1.3)
+51.4836 	EXP 	Created unnamed Line = Line(__class__=<class 'psychopy.visual.line.Line'>, anchor=('center', 'center'), autoDraw=False, autoLog=True, closeShape=False, color=array([1., 1., 1.]), colorSpace='rgb', contrast=None, depth=0, draggable=False, fillColor=ndarray(...), fillColorSpace='rgb', fillRGB=ndarray(...), interpolate=True, lineColor=array([1., 1., 1.]), lineColorSpace='rgb', lineRGB=array([1, 1, 1]), lineWidth=3, name='unnamed Line', opacity=1, ori=0.0, pos=array([0., 0.]), size=array([1., 1.]), units='height', vertices=array([[-0.5,  0. ],
+       [ 0.5,  0. ]]), win=Window(...), windingRule=None)
+51.4874 	EXP 	Created unnamed Line = Line(__class__=<class 'psychopy.visual.line.Line'>, anchor=('center', 'center'), autoDraw=False, autoLog=True, closeShape=False, color=array([1., 1., 1.]), colorSpace='rgb', contrast=None, depth=0, draggable=False, fillColor=ndarray(...), fillColorSpace='rgb', fillRGB=ndarray(...), interpolate=True, lineColor=array([1., 1., 1.]), lineColorSpace='rgb', lineRGB=array([1, 1, 1]), lineWidth=3, name='unnamed Line', opacity=1, ori=0.0, pos=array([0., 0.]), size=array([1., 1.]), units='height', vertices=array([[-0.5 , -0.03],
+       [-0.5 ,  0.03]]), win=Window(...), windingRule=None)
+51.4912 	EXP 	Created unnamed Line = Line(__class__=<class 'psychopy.visual.line.Line'>, anchor=('center', 'center'), autoDraw=False, autoLog=True, closeShape=False, color=array([1., 1., 1.]), colorSpace='rgb', contrast=None, depth=0, draggable=False, fillColor=ndarray(...), fillColorSpace='rgb', fillRGB=ndarray(...), interpolate=True, lineColor=array([1., 1., 1.]), lineColorSpace='rgb', lineRGB=array([1, 1, 1]), lineWidth=3, name='unnamed Line', opacity=1, ori=0.0, pos=array([0., 0.]), size=array([1., 1.]), units='height', vertices=array([[ 0.5 , -0.03],
+       [ 0.5 ,  0.03]]), win=Window(...), windingRule=None)
+51.4993 	EXP 	Created unnamed TextStim = TextStim(__class__=<class 'psychopy.visual.text.TextStim'>, alignHoriz=method-wrapper(...), alignText='center', alignVert=method-wrapper(...), anchorHoriz='center', anchorVert='center', antialias=True, autoDraw=False, autoLog=True, bold=False, color=array([1., 1., 1.]), colorSpace='rgb', contrast=1.0, depth=0, draggable=False, flipHoriz=False, flipVert=False, font='', fontFiles=[], height=np.float64(0.032), italic=False, languageStyle='LTR', name='unnamed TextStim', opacity=1.0, ori=0.0, pos=array([-0.5 , -0.12]), rgb=UNKNOWN, text="I'm not hungry at all", units='height', win=Window(...), wrapWidth=0.55)
+51.5046 	EXP 	Created unnamed TextStim = TextStim(__class__=<class 'psychopy.visual.text.TextStim'>, alignHoriz=method-wrapper(...), alignText='center', alignVert=method-wrapper(...), anchorHoriz='center', anchorVert='center', antialias=True, autoDraw=False, autoLog=True, bold=False, color=array([1., 1., 1.]), colorSpace='rgb', contrast=1.0, depth=0, draggable=False, flipHoriz=False, flipVert=False, font='', fontFiles=[], height=np.float64(0.032), italic=False, languageStyle='LTR', name='unnamed TextStim', opacity=1.0, ori=0.0, pos=array([ 0.5 , -0.12]), rgb=UNKNOWN, text="I'm the most hungry I can be", units='height', win=Window(...), wrapWidth=0.55)
+51.5122 	EXP 	Created unnamed TextStim = TextStim(__class__=<class 'psychopy.visual.text.TextStim'>, alignHoriz=method-wrapper(...), alignText='center', alignVert=method-wrapper(...), anchorHoriz='center', anchorVert='center', antialias=True, autoDraw=False, autoLog=True, bold=False, color=array([0.7, 0.7, 0.7]), colorSpace='rgb', contrast=1.0, depth=0, draggable=False, flipHoriz=False, flipVert=False, font='', fontFiles=[], height=np.float64(0.03), italic=False, languageStyle='LTR', name='unnamed TextStim', opacity=1.0, ori=0.0, pos=array([ 0.  , -0.38]), rgb=UNKNOWN, text=str(...), units='height', win=Window(...), wrapWidth=1)
+51.5160 	EXP 	Created unnamed Rect = Rect(__class__=<class 'psychopy.visual.rect.Rect'>, anchor=('center', 'center'), autoDraw=False, autoLog=True, closeShape=True, color=method-wrapper(...), colorSpace='rgb', contrast=None, depth=0, draggable=False, fillColor=array([1.  , 0.85, 0.2 ]), fillColorSpace='rgb', fillRGB=array([1.  , 0.85, 0.2 ]), interpolate=True, lineColor=array([0., 0., 0.]), lineColorSpace='rgb', lineRGB=array([0, 0, 0]), lineWidth=1.5, name='unnamed Rect', opacity=1, ori=0.0, pos=array([0., 0.]), size=array([0.012, 0.06 ]), units='height', vertices=ndarray(...), win=Window(...))
+52.1438 	EXP 	Device response: <KeyPress from None: t=52.142854457953945, value=right, duration=None>
+52.1488 	DATA 	Keypress: right
+52.2271 	EXP 	Device response: <KeyPress from None: t=52.142854457953945, value=right, duration=0.07631925004534423>
+52.2895 	DATA 	Keypress: right
+52.2937 	EXP 	Device response: <KeyPress from None: t=52.28686733311042, value=right, duration=None>
+52.3436 	EXP 	Device response: <KeyPress from None: t=52.28686733311042, value=right, duration=0.0562887080013752>
+52.4354 	DATA 	Keypress: right
+52.4437 	EXP 	Device response: <KeyPress from None: t=52.43285079090856, value=right, duration=None>
+52.4937 	EXP 	Device response: <KeyPress from None: t=52.43285079090856, value=right, duration=0.04430375015363097>
+52.5590 	DATA 	Keypress: right
+52.5604 	EXP 	Device response: <KeyPress from None: t=52.55585195799358, value=right, duration=None>
+52.6270 	EXP 	Device response: <KeyPress from None: t=52.55585195799358, value=right, duration=0.060304957907646894>
+52.6491 	DATA 	Keypress: right
+52.6604 	EXP 	Device response: <KeyPress from None: t=52.64582354109734, value=right, duration=None>
+52.7271 	EXP 	Device response: <KeyPress from None: t=52.64582354109734, value=right, duration=0.0723311249166727>
+53.8554 	DATA 	Keypress: right
+53.8605 	EXP 	Device response: <KeyPress from None: t=53.85261616599746, value=right, duration=None>
+53.9772 	EXP 	Device response: <KeyPress from None: t=53.85261616599746, value=right, duration=0.11148983403109014>
+54.1389 	DATA 	Keypress: right
+54.1438 	EXP 	Device response: <KeyPress from None: t=54.13579125003889, value=right, duration=None>
+54.2438 	EXP 	Device response: <KeyPress from None: t=54.13579125003889, value=right, duration=0.09631649986840785>
+55.3025 	DATA 	Keypress: space
+55.3107 	EXP 	Device response: <KeyPress from None: t=55.299777375068516, value=space, duration=None>
+55.3939 	EXP 	Device response: <KeyPress from None: t=55.299777375068516, value=space, duration=0.08431275002658367>
+55.4097 	EXP 	Created unnamed TextStim = TextStim(__class__=<class 'psychopy.visual.text.TextStim'>, alignHoriz=method-wrapper(...), alignText='center', alignVert=method-wrapper(...), anchorHoriz='center', anchorVert='center', antialias=True, autoDraw=False, autoLog=True, bold=False, color=array([1., 1., 1.]), colorSpace='rgb', contrast=1.0, depth=0, draggable=False, flipHoriz=False, flipVert=False, font='', fontFiles=[], height=np.float64(0.05), italic=False, languageStyle='LTR', name='unnamed TextStim', opacity=1.0, ori=0.0, pos=array([0.  , 0.25]), rgb=UNKNOWN, text='How do you feel right now?', units='height', win=Window(...), wrapWidth=1.3)
+55.4166 	EXP 	Created unnamed Line = Line(__class__=<class 'psychopy.visual.line.Line'>, anchor=('center', 'center'), autoDraw=False, autoLog=True, closeShape=False, color=array([1., 1., 1.]), colorSpace='rgb', contrast=None, depth=0, draggable=False, fillColor=ndarray(...), fillColorSpace='rgb', fillRGB=ndarray(...), interpolate=True, lineColor=array([1., 1., 1.]), lineColorSpace='rgb', lineRGB=array([1, 1, 1]), lineWidth=3, name='unnamed Line', opacity=1, ori=0.0, pos=array([0., 0.]), size=array([1., 1.]), units='height', vertices=array([[-0.5,  0. ],
+       [ 0.5,  0. ]]), win=Window(...), windingRule=None)
+55.4205 	EXP 	Created unnamed Line = Line(__class__=<class 'psychopy.visual.line.Line'>, anchor=('center', 'center'), autoDraw=False, autoLog=True, closeShape=False, color=array([1., 1., 1.]), colorSpace='rgb', contrast=None, depth=0, draggable=False, fillColor=ndarray(...), fillColorSpace='rgb', fillRGB=ndarray(...), interpolate=True, lineColor=array([1., 1., 1.]), lineColorSpace='rgb', lineRGB=array([1, 1, 1]), lineWidth=3, name='unnamed Line', opacity=1, ori=0.0, pos=array([0., 0.]), size=array([1., 1.]), units='height', vertices=array([[-0.5 , -0.03],
+       [-0.5 ,  0.03]]), win=Window(...), windingRule=None)
+55.4244 	EXP 	Created unnamed Line = Line(__class__=<class 'psychopy.visual.line.Line'>, anchor=('center', 'center'), autoDraw=False, autoLog=True, closeShape=False, color=array([1., 1., 1.]), colorSpace='rgb', contrast=None, depth=0, draggable=False, fillColor=ndarray(...), fillColorSpace='rgb', fillRGB=ndarray(...), interpolate=True, lineColor=array([1., 1., 1.]), lineColorSpace='rgb', lineRGB=array([1, 1, 1]), lineWidth=3, name='unnamed Line', opacity=1, ori=0.0, pos=array([0., 0.]), size=array([1., 1.]), units='height', vertices=array([[ 0.5 , -0.03],
+       [ 0.5 ,  0.03]]), win=Window(...), windingRule=None)
+55.4322 	EXP 	Created unnamed TextStim = TextStim(__class__=<class 'psychopy.visual.text.TextStim'>, alignHoriz=method-wrapper(...), alignText='center', alignVert=method-wrapper(...), anchorHoriz='center', anchorVert='center', antialias=True, autoDraw=False, autoLog=True, bold=False, color=array([1., 1., 1.]), colorSpace='rgb', contrast=1.0, depth=0, draggable=False, flipHoriz=False, flipVert=False, font='', fontFiles=[], height=np.float64(0.032), italic=False, languageStyle='LTR', name='unnamed TextStim', opacity=1.0, ori=0.0, pos=array([-0.5 , -0.12]), rgb=UNKNOWN, text='Feeling extremely bored/low energy', units='height', win=Window(...), wrapWidth=0.55)
+55.4373 	EXP 	Created unnamed TextStim = TextStim(__class__=<class 'psychopy.visual.text.TextStim'>, alignHoriz=method-wrapper(...), alignText='center', alignVert=method-wrapper(...), anchorHoriz='center', anchorVert='center', antialias=True, autoDraw=False, autoLog=True, bold=False, color=array([1., 1., 1.]), colorSpace='rgb', contrast=1.0, depth=0, draggable=False, flipHoriz=False, flipVert=False, font='', fontFiles=[], height=np.float64(0.032), italic=False, languageStyle='LTR', name='unnamed TextStim', opacity=1.0, ori=0.0, pos=array([ 0.5 , -0.12]), rgb=UNKNOWN, text='Feeling extremely engaged/energized', units='height', win=Window(...), wrapWidth=0.55)
+55.4455 	EXP 	Created unnamed TextStim = TextStim(__class__=<class 'psychopy.visual.text.TextStim'>, alignHoriz=method-wrapper(...), alignText='center', alignVert=method-wrapper(...), anchorHoriz='center', anchorVert='center', antialias=True, autoDraw=False, autoLog=True, bold=False, color=array([0.7, 0.7, 0.7]), colorSpace='rgb', contrast=1.0, depth=0, draggable=False, flipHoriz=False, flipVert=False, font='', fontFiles=[], height=np.float64(0.03), italic=False, languageStyle='LTR', name='unnamed TextStim', opacity=1.0, ori=0.0, pos=array([ 0.  , -0.38]), rgb=UNKNOWN, text=str(...), units='height', win=Window(...), wrapWidth=1)
+55.4491 	EXP 	Created unnamed Rect = Rect(__class__=<class 'psychopy.visual.rect.Rect'>, anchor=('center', 'center'), autoDraw=False, autoLog=True, closeShape=True, color=method-wrapper(...), colorSpace='rgb', contrast=None, depth=0, draggable=False, fillColor=array([1.  , 0.85, 0.2 ]), fillColorSpace='rgb', fillRGB=array([1.  , 0.85, 0.2 ]), interpolate=True, lineColor=array([0., 0., 0.]), lineColorSpace='rgb', lineRGB=array([0, 0, 0]), lineWidth=1.5, name='unnamed Rect', opacity=1, ori=0.0, pos=array([0., 0.]), size=array([0.012, 0.06 ]), units='height', vertices=ndarray(...), win=Window(...))
+58.6155 	DATA 	Keypress: left
+58.6274 	EXP 	Device response: <KeyPress from None: t=58.611667749937624, value=left, duration=None>
+58.6605 	EXP 	Device response: <KeyPress from None: t=58.611667749937624, value=left, duration=0.048316875007003546>
+58.7899 	DATA 	Keypress: left
+58.7940 	EXP 	Device response: <KeyPress from None: t=58.78667766600847, value=left, duration=None>
+58.8606 	EXP 	Device response: <KeyPress from None: t=58.78667766600847, value=left, duration=0.0722886249423027>
+59.3606 	EXP 	Device response: <KeyPress from None: t=59.35765058291145, value=space, duration=None>
+59.3612 	DATA 	Keypress: space
+59.4773 	EXP 	Device response: <KeyPress from None: t=59.35765058291145, value=space, duration=0.11233241716399789>
+59.4815 	EXP 	VAS end (hunger=48.0, energy=-12.0)
+59.4938 	EXP 	unnamed Rect: fillColor = [0.85, 0.85, 0.85]
+59.4938 	EXP 	unnamed Rect: fillColor = [0.85, 0.85, 0.85]
+59.4938 	EXP 	unnamed Rect: fillColor = [0.85, 0.85, 0.85]
+59.4938 	EXP 	unnamed TextStim: text = ''
+59.4938 	EXP 	unnamed TextStim: foreColor = 'white'
+59.4938 	EXP 	unnamed TextStim: height = np.float64(0.035)
+59.4938 	EXP 	unnamed TextStim: height = np.float64(0.035)
+59.4938 	EXP 	unnamed TextStim: height = np.float64(0.035)
+59.4938 	EXP 	unnamed TextStim: text = 'Score: 0 pts'
+59.4938 	EXP 	unnamed TextStim: text = ''
+59.4938 	EXP 	unnamed TextStim: height = np.float64(0.035)
+59.4938 	EXP 	unnamed TextStim: height = np.float64(0.035)
+59.4938 	EXP 	unnamed TextStim: height = np.float64(0.035)
+59.4938 	EXP 	unnamed TextStim: text = ''
+59.4938 	EXP 	TRIGGER 10 (choice_onset)
+60.3007 	DATA 	Keypress: down
+60.3109 	EXP 	Device response: <KeyPress from None: t=60.297623000107706, value=down, duration=None>
+60.3272 	EXP 	TRIGGER 11 (choice_made)
+60.7438 	EXP 	TRIGGER 34 (anticipation)
+60.7441 	EXP 	Device response: <KeyPress from None: t=60.297623000107706, value=down, duration=0.14433320797979832>
+61.5272 	EXP 	unnamed TextStim: height = np.float64(0.035)
+61.5272 	EXP 	unnamed TextStim: height = np.float64(0.035)
+61.5272 	EXP 	unnamed TextStim: height = np.float64(0.035)
+61.5272 	EXP 	unnamed TextStim: text = 'Score: -10 pts'
+61.5272 	EXP 	unnamed TextStim: text = ''
+61.5272 	EXP 	unnamed TextStim: height = np.float64(0.1)
+61.5272 	EXP 	unnamed TextStim: height = np.float64(0.1)
+61.5272 	EXP 	unnamed TextStim: height = np.float64(0.1)
+61.5272 	EXP 	unnamed TextStim: text = '-10 Points'
+61.5272 	EXP 	unnamed TextStim: foreColor = [0.9, 0.2, 0.2]
+61.5272 	EXP 	unnamed ImageStim: ori = -0.25
+61.5272 	EXP 	unnamed ImageStim: image = '/Users/burgerks/Documents/GitHub/motivated_bandit/_task/stimuli/loss/lose_pic.png'
+61.5273 	EXP 	TRIGGER 21 (bandit_loss)
+63.5940 	EXP 	unnamed Rect: fillColor = [0.85, 0.85, 0.85]
+63.5940 	EXP 	unnamed Rect: fillColor = [0.85, 0.85, 0.85]
+63.5940 	EXP 	unnamed Rect: fillColor = [0.85, 0.85, 0.85]
+63.5940 	EXP 	unnamed TextStim: text = ''
+63.5940 	EXP 	unnamed TextStim: foreColor = 'white'
+63.5940 	EXP 	unnamed TextStim: text = 'Score: -10 pts'
+63.5940 	EXP 	unnamed TextStim: text = ''
+63.5940 	EXP 	TRIGGER 10 (choice_onset)
+64.0277 	EXP 	Device response: <KeyPress from None: t=64.02552454103716, value=escape, duration=None>

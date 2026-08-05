@@ -1,0 +1,3 @@
+participant_id,session,task_version,seed,vas_name,question,left_anchor,right_anchor,rating,rt_s,moved
+999,001,v17.3,637995920,hunger,How hungry do you feel right now?,I'm not hungry at all,I'm the most hungry I can be,47.99,3.8811,1
+999,001,v17.3,637995920,energy,How do you feel right now?,Feeling extremely bored/low energy,Feeling extremely engaged/energized,-12.04,4.0316,1

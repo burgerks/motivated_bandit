@@ -3,8 +3,11 @@
 """
 Probabilistic 3-arm bandit with an interleaved mini-MID "bonus round".
 
-PsychoPy (Coder) port of the jsPsych task. Same reward schedule, same single
-reversal, same adaptive-window bonus, same data fields. A staged instruction
+PsychoPy (Coder) port of the jsPsych task. Same reward-schedule generator and
+data fields as the web version. The structure has since diverged: the session is
+two independent runs with ONE reversal EACH (not one reversal overall), and the
+bonus probe uses a FIXED response window (the adaptive staircase was removed in
+v16). A staged instruction
 walkthrough and a short, replayable practice block (two rigged bandit trials, a
 scripted too-soon demonstration, and three bonus rounds) precede the recorded
 task; practice never logs data and runs
@@ -14,11 +17,15 @@ reproduced bit-for-bit from JavaScript, so a given seed yields the same bandit
 schedule as the web version (verified against the JS implementation).
 
 Tested against the PsychoPy 2023.2+/2024.x API (visual, core, gui,
-hardware.keyboard, parallel). Run from the PsychoPy Coder or `python bandit_mid_task_v14.py`.
-Version v16 (see TASK_VERSION), logged in every data row.
+hardware.keyboard, parallel). Run from the PsychoPy Coder or
+`python bandit_mid_task_v17_3.py`.
+Version v17.3 (see TASK_VERSION), logged in every data row. Keep this label, the
+TASK_VERSION constant, and the filename in step whenever the version is bumped.
 
-Changes from v15 (these deliberately break byte-identical reproducibility with
-v15, because the task structure itself has changed):
+Changes introduced at v16 relative to v15 (these deliberately break
+byte-identical reproducibility with v15, because the task structure itself
+changed). Changes at v17 and later are listed in the comment block above CFG,
+next to TASK_VERSION:
 
   1. TWO RUNS. The 200 bandit trials are delivered as two independent 100-trial
      runs with a rest break between them. Each run is a fresh acquisition: arm
@@ -41,7 +48,8 @@ randomness on the SECOND stream, exactly as before; only the call sequence has
 changed because the run is now built twice.
 
 Folder layout expected next to this file:
-    stimuli/shapes/         heart.png, circle.png, triangle.png (bandit symbols)
+    stimuli/shapes/         heart.png, circle.png, triangle.png   (run 1 symbols)
+                            knot.png, rose.png, cinquefoil.png    (run 2 symbols)
     stimuli/win/sweet/      <your sweet food images>
     stimuli/win/savory/     <your savory food images>
     stimuli/neutral/        <your neutral / scrambled images>
@@ -1263,11 +1271,15 @@ def main():
     logging.exp('PRACTICE end')
 
     # ---- Visual analog scales (post-practice, pre-task) --------------------
-    # Three continuous VAS on a -100..100 scale, shown once between practice and
-    # the recorded task. The marker starts centered (0) and the numeric value is
-    # never shown; the participant clicks the track to set it and presses SPACE.
-    # No RNG is drawn here, so the bandit/bonus schedule is untouched. Responses
-    # are written to a separate <run>_vas.csv to keep the main task schema stable.
+    # Two continuous VAS (hunger, then energy/engagement) on a -100..100 scale,
+    # shown once between practice and the recorded task. The marker starts
+    # centered (0) and the numeric value is never shown; the participant clicks
+    # the track to set it and presses SPACE. No RNG is drawn here, so the
+    # bandit/bonus schedule is untouched. Responses are written to a separate
+    # <run>_vas.csv to keep the main task schema stable.
+    # NOTE: neither scale asks about food craving or wanting, so as shipped there
+    # is no self-report manipulation check on the food cues. Any write-up
+    # claiming one needs a craving VAS added here first.
     mouse = event.Mouse(win=win)
 
     def run_vas(name, question, left_anchor, right_anchor):
